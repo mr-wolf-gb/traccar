@@ -19,7 +19,7 @@ return [
     ],
     'inject_assets' => false,
     'database' => [
-        'connection' => env('TRACCAR_DB_CONNECTION'),
+        'connection' => env('TRACCAR_DB_CONNECTION', 'mysql'),
         'chunk' => 1000,
     ],
     'devices' => [

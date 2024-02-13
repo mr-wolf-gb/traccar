@@ -11,8 +11,13 @@
 namespace MrWolfGb\Traccar;
 
 use Composer\InstalledVersions;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Console\AboutCommand;
+use Illuminate\Foundation\Http\Kernel;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
+use MrWolfGb\Traccar\Middleware\TraccarSessionMiddleware;
 use MrWolfGb\Traccar\Services\TraccarService;
 
 class TraccarServiceProvider extends ServiceProvider
@@ -29,6 +34,12 @@ class TraccarServiceProvider extends ServiceProvider
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'traccar');
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
+        $this->app->singleton(TraccarSessionMiddleware::class, function (Application $app) {
+            return new TraccarSessionMiddleware(app(TraccarService::class)); // @phpstan-ignore-line
+        });
+        /** @var Router $router */
+        $router = $this->app->make('router');
+        $router->aliasMiddleware('TraccarSession', TraccarSessionMiddleware::class);
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
@@ -41,6 +52,10 @@ class TraccarServiceProvider extends ServiceProvider
             ], 'views');*/
 
             // Publishing assets.
+            $this->publishes([
+                __DIR__ . '/../resources/assets' => public_path('vendor/traccar'),
+            ], 'assets');
+
             $this->publishes([
                 __DIR__ . '/../resources/assets' => public_path('vendor/traccar'),
             ], 'assets');
@@ -88,6 +103,43 @@ class TraccarServiceProvider extends ServiceProvider
                 ]
             )
         );
+    }
 
+    /**
+     * @param string $middleware
+     *
+     * @return void
+     * @throws BindingResolutionException
+     */
+    private function appendMiddlewareToWebGroup(string $middleware): void
+    {
+        if (!$this->app->bound($middleware)) {
+            return;
+        }
+
+        /** @var Router $router */
+        $router = $this->app->make('router');
+        if (method_exists($router, 'pushMiddlewareToGroup')) {
+            $router->pushMiddlewareToGroup('web', $middleware);
+
+            return;
+        }
+
+        if (!$this->app->bound('Illuminate\Contracts\Http\Kernel')) {
+            return;
+        }
+
+        /** @var Kernel $kernel */
+        $kernel = $this->app->make('Illuminate\Contracts\Http\Kernel');
+
+        if (method_exists($kernel, 'appendMiddlewareToGroup')) {
+            $kernel->appendMiddlewareToGroup('web', $middleware);
+
+            return;
+        }
+
+        if (method_exists($kernel, 'pushMiddleware')) {
+            $kernel->pushMiddleware($middleware);
+        }
     }
 }

@@ -16,14 +16,14 @@ use Illuminate\Http\Client\Response;
 
 trait CanSendPostRequest
 {
-    public function session(PendingRequest $request, string $url, null|string $email = null, null|string $password = null): PromiseInterface|Response
+    public function session(PendingRequest $request, string $url): PromiseInterface|Response
     {
         return $request->withoutVerifying()->asForm()
             ->post(
                 url: $url,
                 data: [
-                    'email' => $email ?? $this->email,
-                    'password' => $password ?? $this->password
+                    'email' => $this->email,
+                    'password' => $this->password
                 ]
             );
     }

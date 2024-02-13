@@ -10,6 +10,9 @@
 
 namespace MrWolfGb\Traccar\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use MrWolfGb\Traccar\Trait\ArrayToModel;
 
@@ -21,13 +24,24 @@ class Device extends Model
     protected $guarded = [];
     protected $casts = [
         'attribs' => 'array',
-        'geofenceIds' => 'array'
+        'geofenceIds' => 'array',
+        'lastUpdate' => 'timestamp'
     ];
+
+    protected function lastUpdate(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value ? Carbon::parse($value)->format('Y-m-d H:i:s') : $value,
+            set: fn (?string $value) => $value ? Carbon::parse($value)->format('Y-m-d H:i:s') : $value,
+        );
+    }
 
     public function __construct(array $attributes = [])
     {
+        if (! isset($this->connection)) {
+            $this->setConnection(config('traccar.database.connection'));
+        }
         parent::__construct($attributes);
-        $this->connection = config('traccar.database.connection') ?: parent::getConnection();
     }
 
     public function createOrUpdate()
@@ -39,6 +53,11 @@ class Device extends Model
             $check = Device::create($this->attributes);
         }
         return $check;
+    }
+
+    public function scopeWhereName(Builder $query, string $name): Builder
+    {
+        return $query->where('name', $name);
     }
 
 }

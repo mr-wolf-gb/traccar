@@ -10,6 +10,8 @@
 
 namespace MrWolfGb\Traccar\Services;
 
+use Illuminate\Support\Facades\Cache;
+use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Services\Concerns\BuildBaseRequest;
 use MrWolfGb\Traccar\Services\Concerns\CanSendGetRequest;
 use MrWolfGb\Traccar\Services\Concerns\CanSendPostRequest;
@@ -32,14 +34,91 @@ class TraccarService
      * @param string $email
      * @param string $password
      * @param array $headers
+     * @throws TraccarException
      */
     public function __construct(
-        private readonly string $baseUrl,
-        private readonly string $email,
-        private readonly string $password,
-        private readonly array  $headers)
+        private string $baseUrl,
+        private string $email,
+        private string $password,
+        private array  $headers)
     {
+        if (!Cache::has('traccar_auth_array')){
+            $this->sessionRepository()->createNewSession();
+        }
     }
+
+    /**
+     * @return string
+     */
+    public function getBaseUrl(): string
+    {
+        return $this->baseUrl;
+    }
+
+    /**
+     * @param string $baseUrl
+     * @return $this
+     */
+    public function setBaseUrl(string $baseUrl): TraccarService
+    {
+        $this->baseUrl = $baseUrl;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string $email
+     * @return $this
+     */
+    public function setEmail(string $email): TraccarService
+    {
+        $this->email = $email;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    /**
+     * @param string $password
+     * @return $this
+     */
+    public function setPassword(string $password): TraccarService
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    /**
+     * @param array $headers
+     * @return $this
+     */
+    public function setHeaders(array $headers): TraccarService
+    {
+        $this->headers = $headers;
+        return $this;
+    }
+
 
 
     /**

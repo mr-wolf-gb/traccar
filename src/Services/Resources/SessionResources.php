@@ -10,9 +10,13 @@
 
 namespace MrWolfGb\Traccar\Services\Resources;
 
+use Illuminate\Cookie\CookieJar;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Cache;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Session;
 use MrWolfGb\Traccar\Services\TraccarService;
+use Symfony\Component\HttpFoundation\Cookie;
 
 class SessionResources
 {
@@ -48,10 +52,13 @@ class SessionResources
         if (!$response->ok()) {
             throw new TraccarException($response->toException());
         }
-        return Session::createFromValueArray([
-            'data' => $response->json(),
-            'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null
-        ]);
+        return Session::createFromValueArray(Cache::rememberForever('traccar_auth_array', function () use($response){
+            return [
+                'data' => $response->json(),
+                'token' => $response->json("token"),
+                'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null
+            ];
+        }));
     }
 
     /**
@@ -67,9 +74,25 @@ class SessionResources
         if (!$response->ok()) {
             throw new TraccarException($response->toException());
         }
-        return Session::createFromValueArray([
-            'data' => $response->json(),
-            'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null
-        ]);
+        return Session::createFromValueArray(Cache::rememberForever('traccar_auth_array', function () use($response){
+            return [
+                'data' => $response->json(),
+                'token' => $response->json("token"),
+                'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null
+            ];
+        }));
+    }
+
+    public function getCookies(): Application|CookieJar|Cookie|\Illuminate\Contracts\Foundation\Application
+    {
+        $session = Cache::get("traccar_auth_array")["session"];
+        return cookie(
+            name: $session["Name"],
+            value: $session["Value"],
+            path: $session["Path"],
+            domain: $session["Domain"],
+            secure: false,
+            httpOnly: false
+        );
     }
 }
