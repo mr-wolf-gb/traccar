@@ -34,10 +34,6 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-### Security
-
-If you discover any security related issues, please email gaiththewolf@gmail.com instead of using the issue tracker.
-
 ## Credits
 
 - [Mr.WOLF](https://github.com/mr-wolf-gb)
