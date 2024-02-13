@@ -1,0 +1,54 @@
+{
+    "name": "mr-wolf-gb/traccar",
+    "description": "Traccar GPS server",
+    "keywords": [
+        "laravel",
+        "gps",
+        "traccar"
+    ],
+    "homepage": "https://github.com/mr-wolf-gb/traccar",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/mr-wolf-gb/traccar/issues",
+        "source": "https://github.com/mr-wolf-gb/traccar"
+    },
+    "type": "library",
+    "authors": [
+        {
+            "name": "Mr.WOLF",
+            "email": "gaiththewolf@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "MrWolfGb\\Traccar\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MrWolfGb\\Traccar\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MrWolfGb\\Traccar\\TraccarServiceProvider"
+            ],
+            "aliases": {
+                "Traccar": "MrWolfGb\\Traccar\\TraccarFacade"
+            }
+        }
+    },
+    "version": "0.0.1"
+}
