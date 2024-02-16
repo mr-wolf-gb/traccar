@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: Device.php
- * Modified : mar., 13 févr. 2024 14:33
+ * Modified : ven., 16 févr. 2024 14:57
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -23,22 +23,12 @@ class Device extends Model
     protected $table = "traccar_devices";
     protected $guarded = [];
     protected $casts = [
-        'attribs' => 'array',
-        'geofenceIds' => 'array',
-        'lastUpdate' => 'timestamp'
+        'data' => 'array'
     ];
-
-    protected function lastUpdate(): Attribute
-    {
-        return Attribute::make(
-            get: fn (?string $value) => $value ? Carbon::parse($value)->format('Y-m-d H:i:s') : $value,
-            set: fn (?string $value) => $value ? Carbon::parse($value)->format('Y-m-d H:i:s') : $value,
-        );
-    }
 
     public function __construct(array $attributes = [])
     {
-        if (! isset($this->connection)) {
+        if (!isset($this->connection)) {
             $this->setConnection(config('traccar.database.connection'));
         }
         parent::__construct($attributes);
@@ -46,18 +36,35 @@ class Device extends Model
 
     public function createOrUpdate()
     {
-        $check = static::where('uniqueId', $this->uniqueId)->first();
-        if ($check) {
-            $check->update($this->attributes);
+        $device = static::where('uniqueId', $this->uniqueId)->first();
+        if ($device) {
+            $device->update([
+                'name' => $this->name,
+                'uniqueId' => $this->uniqueId,
+                'data' => $this->attributes->except('id', 'name', 'uniqueId', 'data'),
+            ]);
         } else {
-            $check = Device::create($this->attributes);
+            $device = Device::create([
+                'id' => $this->id,
+                'name' => $this->name,
+                'uniqueId' => $this->uniqueId,
+                'data' => $this->attributes->except('id', 'name', 'uniqueId', 'data'),
+            ]);
         }
-        return $check;
+        return $device;
     }
 
     public function scopeWhereName(Builder $query, string $name): Builder
     {
         return $query->where('name', $name);
+    }
+
+    protected function lastUpdate(): Attribute
+    {
+        return Attribute::make(
+            get: fn(?string $value) => $value ? Carbon::parse($value)->format('Y-m-d H:i:s') : $value,
+            set: fn(?string $value) => $value ? Carbon::parse($value)->format('Y-m-d H:i:s') : $value,
+        );
     }
 
 }

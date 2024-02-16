@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: TraccarService.php
- * Modified : mar., 13 févr. 2024 08:45
+ * Modified : ven., 16 févr. 2024 14:52
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -11,6 +11,7 @@
 namespace MrWolfGb\Traccar\Services;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Services\Concerns\BuildBaseRequest;
 use MrWolfGb\Traccar\Services\Concerns\CanSendGetRequest;
@@ -29,6 +30,8 @@ class TraccarService
 {
     use BuildBaseRequest, CanSendGetRequest, CanSendPostRequest;
 
+    public string $cacheKey;
+
     /**
      * @param string $baseUrl
      * @param string $email
@@ -42,9 +45,18 @@ class TraccarService
         private string $password,
         private array  $headers)
     {
-        if (!Cache::has('traccar_auth_array')){
+        $this->cacheKey = Str::slug($email, '_') . '_traccar_auth';
+        if (!Cache::has($this->cacheKey)) {
             $this->sessionRepository()->createNewSession();
         }
+    }
+
+    /**
+     * @return SessionResources
+     */
+    public function sessionRepository(): SessionResources
+    {
+        return new SessionResources($this);
     }
 
     /**
@@ -119,14 +131,18 @@ class TraccarService
         return $this;
     }
 
-
-
     /**
-     * @return SessionResources
+     * @return string
      */
-    public function sessionRepository(): SessionResources
+    public function getCacheKey(): string
     {
-        return new SessionResources($this);
+        return $this->cacheKey ?? Str::slug($this->email, '_') . '_traccar_auth';
+    }
+
+    public function setCacheKey(string $cacheKey): TraccarService
+    {
+        $this->cacheKey = $cacheKey;
+        return $this;
     }
 
     /**

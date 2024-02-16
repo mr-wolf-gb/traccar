@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: SessionResources.php
- * Modified : mar., 13 févr. 2024 09:16
+ * Modified : ven., 16 févr. 2024 14:45
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Cookie;
 
 class SessionResources
 {
+
     public function __construct(public TraccarService $service)
     {
     }
@@ -52,7 +53,7 @@ class SessionResources
         if (!$response->ok()) {
             throw new TraccarException($response->toException());
         }
-        return Session::createFromValueArray(Cache::rememberForever('traccar_auth_array', function () use($response){
+        return Session::createFromValueArray(Cache::rememberForever($this->service->getCacheKey(), function () use ($response) {
             return [
                 'data' => $response->json(),
                 'token' => $response->json("token"),
@@ -74,7 +75,7 @@ class SessionResources
         if (!$response->ok()) {
             throw new TraccarException($response->toException());
         }
-        return Session::createFromValueArray(Cache::rememberForever('traccar_auth_array', function () use($response){
+        return Session::createFromValueArray(Cache::rememberForever($this->service->getCacheKey(), function () use ($response) {
             return [
                 'data' => $response->json(),
                 'token' => $response->json("token"),
@@ -85,14 +86,14 @@ class SessionResources
 
     public function getCookies(): Application|CookieJar|Cookie|\Illuminate\Contracts\Foundation\Application
     {
-        $session = Cache::get("traccar_auth_array")["session"];
+        $session = Cache::get($this->service->getCacheKey())["session"];
         return cookie(
             name: $session["Name"],
             value: $session["Value"],
             path: $session["Path"],
             domain: $session["Domain"],
             secure: false,
-            httpOnly: false
+            httpOnly: false,
         );
     }
 }

@@ -2,10 +2,10 @@
 /*
  * Author: WOLF
  * Name: BuildBaseRequest.php
- * Modified : lun., 12 févr. 2024 14:00
+ * Modified : ven., 16 févr. 2024 14:45
  * Description: ...
  *
- * Copyright 2024 -[GHAITH BACCARI]-[WS]-
+ * Copyright 2024 -[MR.WOLF]-[WS]-
  */
 
 namespace MrWolfGb\Traccar\Services\Concerns;
@@ -18,8 +18,8 @@ trait BuildBaseRequest
 {
     public function buildRequestWithAccessToken(): PendingRequest
     {
-        $authArray = Cache::get('traccar_auth_array');
-        return $this->withBaseUrl()->withQueryParameters(["token" => $authArray["token"]]);
+        $authArray = Cache::get($this->getCacheKey());
+        return $this->withBaseUrl()->withQueryParameters(["token" => $authArray["token"] ?: config('traccar.token')]);
     }
 
     public function withBaseUrl(): PendingRequest
