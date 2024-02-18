@@ -89,11 +89,7 @@ class SessionResources
         $session = Cache::get($this->service->getCacheKey())["session"];
         return cookie(
             name: $session["Name"],
-            value: $session["Value"],
-            path: $session["Path"],
-            domain: $session["Domain"],
-            secure: false,
-            httpOnly: false,
+            value: $session["Value"]
         );
     }
 }

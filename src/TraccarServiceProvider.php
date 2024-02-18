@@ -11,6 +11,8 @@
 namespace MrWolfGb\Traccar;
 
 use Composer\InstalledVersions;
+use Illuminate\Foundation\Application;
+use Illuminate\Routing\Router;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\ServiceProvider;
 use MrWolfGb\Traccar\Middleware\TraccarSessionMiddleware;
@@ -30,6 +32,12 @@ class TraccarServiceProvider extends ServiceProvider
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'traccar');
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
+        $this->app->singleton(TraccarSessionMiddleware::class, function (Application $app) {
+            return new TraccarSessionMiddleware(app(TraccarService::class)); // @phpstan-ignore-line
+        });
+        /** @var Router $router */
+        $router = $this->app->make('router');
+        $router->aliasMiddleware('TraccarSession', TraccarSessionMiddleware::class);
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
