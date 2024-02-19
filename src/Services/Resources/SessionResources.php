@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: SessionResources.php
- * Modified : ven., 16 févr. 2024 14:45
+ * Modified : lun., 19 févr. 2024 09:54
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -38,6 +38,36 @@ class SessionResources
             throw new TraccarException($response->toException());
         }
         return $response->json();
+    }
+
+    public function getCookies(): Application|CookieJar|Cookie|\Illuminate\Contracts\Foundation\Application
+    {
+        $this->checkSessionID();
+        $session = Cache::get($this->service->getCacheKey())["session"];
+        return cookie(
+            name: $session["Name"],
+            value: $session["Value"]
+        );
+    }
+
+
+    private function checkSessionID(): void
+    {
+        $session = Cache::get($this->service->getCacheKey())["session"];
+        $response = $this->service->get(
+            request: $this->service->withBaseUrl(),
+            url: 'session/check-sid',
+            query: [
+                'sid' => explode('.', $session["Value"])[0]
+            ]
+        );
+        try {
+            if ($response->json("status") === false) {
+                Cache::forget($this->service->getCacheKey());
+                $this->createNewSession();
+            }
+        } catch (TraccarException $e) {
+        }
     }
 
     /**
@@ -82,14 +112,5 @@ class SessionResources
                 'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null
             ];
         }));
-    }
-
-    public function getCookies(): Application|CookieJar|Cookie|\Illuminate\Contracts\Foundation\Application
-    {
-        $session = Cache::get($this->service->getCacheKey())["session"];
-        return cookie(
-            name: $session["Name"],
-            value: $session["Value"]
-        );
     }
 }
