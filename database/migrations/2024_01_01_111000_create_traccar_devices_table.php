@@ -27,7 +27,16 @@ return new class extends TraccarMigration {
             $table->id();
             $table->string('name');
             $table->string('uniqueId');
-            $table->json('data')->nullable();
+            $table->string('status')->nullable();
+            $table->boolean('disabled')->nullable();
+            $table->timestamp('lastUpdate')->nullable();
+            $table->integer('positionId')->nullable();
+            $table->integer('groupId')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('model')->nullable();
+            $table->string('contact')->nullable();
+            $table->string('category')->nullable();
+            $table->json('attributes')->nullable();
             $table->timestamps();
         });
     }

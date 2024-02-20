@@ -21,9 +21,25 @@ class Device extends Model
     use ArrayToModel;
 
     protected $table = "traccar_devices";
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'uniqueId',
+        'status',
+        'disabled',
+        'lastUpdate',
+        'positionId',
+        'groupId',
+        'phone',
+        'model',
+        'contact',
+        'category',
+        'attribs',
+    ];
+
     protected $casts = [
-        'data' => 'array'
+        'disabled' => 'boolean',
+        'lastUpdate' => 'datetime', // ISO 8601 format : Y-m-d\TH:i:s\Z
+        'attribs' => 'array',
     ];
 
     public function __construct(array $attributes = [])
@@ -34,21 +50,38 @@ class Device extends Model
         parent::__construct($attributes);
     }
 
-    public function createOrUpdate()
+    public function createOrUpdate() : Device
     {
         $device = static::where('uniqueId', $this->uniqueId)->first();
         if ($device) {
             $device->update([
                 'name' => $this->name,
                 'uniqueId' => $this->uniqueId,
-                'data' => $this->attributes->except('id', 'name', 'uniqueId', 'data'),
+                'status' => $this->status,
+                'disabled' => $this->disabled,
+                'lastUpdate' => $this->lastUpdate,
+                'positionId' => $this->positionId,
+                'groupId' => $this->groupId,
+                'phone' => $this->phone,
+                'model' => $this->model,
+                'contact' => $this->contact,
+                'category' => $this->category,
+                'attribs' => $this->attribs,
             ]);
         } else {
             $device = Device::create([
-                'id' => $this->id,
                 'name' => $this->name,
                 'uniqueId' => $this->uniqueId,
-                'data' => $this->attributes->except('id', 'name', 'uniqueId', 'data'),
+                'status' => $this->status,
+                'disabled' => $this->disabled,
+                'lastUpdate' => $this->lastUpdate,
+                'positionId' => $this->positionId,
+                'groupId' => $this->groupId,
+                'phone' => $this->phone,
+                'model' => $this->model,
+                'contact' => $this->contact,
+                'category' => $this->category,
+                'attribs' => $this->attribs,
             ]);
         }
         return $device;
@@ -57,6 +90,11 @@ class Device extends Model
     public function scopeWhereName(Builder $query, string $name): Builder
     {
         return $query->where('name', $name);
+    }
+
+    public function scopeWhereUniqueId(Builder $query, string $uniqueId): Builder
+    {
+        return $query->where('uniqueId', $uniqueId);
     }
 
     protected function lastUpdate(): Attribute

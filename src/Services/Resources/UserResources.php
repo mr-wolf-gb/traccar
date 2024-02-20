@@ -104,6 +104,36 @@ class UserResources
         return User::createFromValueArray($response->json());
     }
 
+    /**
+     * @param User $user
+     * @return User
+     * @throws TraccarException
+     */
+    public function createNewUser(User $user): User
+    {
+        if (!filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+            throw new TraccarException("Invalid email address !");
+        }
+        if ($user->password == '') {
+            throw new TraccarException("Password cannot be empty !");
+        }
+        if ($user->name == '') {
+            throw new TraccarException("Name cannot be empty !");
+        }
+        $postData = $user->toArray();
+        $postData["attributes"] = empty($postData["attribs"]) ? null : $postData["attribs"];
+        unset($postData["attribs"]);
+        $response = $this->service->post(
+            request: $this->service->buildRequestWithBasicAuth(),
+            url: 'users',
+            payload: $postData
+        );
+        if (!$response->ok()) {
+            throw new TraccarException($response->toException());
+        }
+        return User::createFromValueArray($response->json());
+    }
+
 
     /**
      * @param User $user

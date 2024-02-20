@@ -31,7 +31,8 @@ class SessionResources
         $session = Cache::get($this->service->getCacheKey())["session"];
         return cookie(
             name: $session["Name"],
-            value: $session["Value"]
+            value: $session["Value"],
+            domain: $session["Domain"],
         );
     }
 
@@ -97,5 +98,21 @@ class SessionResources
                 'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null
             ];
         }));
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function closeSession(): bool
+    {
+        $response = $this->service->delete(
+            request: $this->service->buildRequestWithCookies(),
+            url: 'session'
+        );
+        if (!$response->noContent()) {
+            throw new TraccarException($response->toException());
+        }
+        Cache::forget($this->service->getCacheKey());
+        return true;
     }
 }

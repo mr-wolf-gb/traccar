@@ -11,6 +11,7 @@
 namespace MrWolfGb\Traccar\Services\Concerns;
 
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 
@@ -23,6 +24,16 @@ trait BuildBaseRequest
     {
         if (empty($this->getToken())) throw new TraccarException("No access token provided.");
         return $this->withBaseUrl()->withQueryParameters(["token" => $this->getToken()]);
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function buildRequestWithCookies(): PendingRequest
+    {
+        if (!Cache::has($this->getCacheKey())) throw new TraccarException("No cookies found for this session.");
+        $session = Cache::get($this->getCacheKey())["session"];
+        return $this->withBaseUrl()->withCookies([$session["Name"] => $session["Value"]], $session["Domain"]);
     }
 
     public function withBaseUrl(): PendingRequest
