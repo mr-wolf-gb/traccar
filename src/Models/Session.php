@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: Session.php
- * Modified : mar., 13 févr. 2024 09:12
+ * Modified : mar., 20 févr. 2024 14:04
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -17,6 +17,41 @@ class Session extends Model
 {
     use ArrayToModel;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'readonly',
+        'administrator',
+        'map',
+        'latitude',
+        'longitude',
+        'zoom',
+        'password',
+        'twelveHourFormat',
+        'coordinateFormat',
+        'disabled',
+        'expirationTime',
+        'deviceLimit',
+        'userLimit',
+        'deviceReadonly',
+        'limitCommands',
+        'fixedEmail',
+        'poiLayer',
+        'attributes',
+    ];
+
+    protected $casts = [
+        'readonly' => 'boolean',
+        'administrator' => 'boolean',
+        'twelveHourFormat' => 'boolean',
+        'disabled' => 'boolean',
+        'deviceReadonly' => 'boolean',
+        'limitCommands' => 'boolean',
+        'fixedEmail' => 'boolean',
+        'attributes' => 'array',
+    ];
+
+    protected $dates = ['expirationTime'];
 
 }

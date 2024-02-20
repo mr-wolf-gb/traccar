@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: TraccarServiceProvider.php
- * Modified : ven., 16 févr. 2024 14:39
+ * Modified : mar., 20 févr. 2024 14:25
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -12,8 +12,8 @@ namespace MrWolfGb\Traccar;
 
 use Composer\InstalledVersions;
 use Illuminate\Foundation\Application;
-use Illuminate\Routing\Router;
 use Illuminate\Foundation\Console\AboutCommand;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use MrWolfGb\Traccar\Middleware\TraccarSessionMiddleware;
 use MrWolfGb\Traccar\Services\TraccarService;
@@ -96,6 +96,7 @@ class TraccarServiceProvider extends ServiceProvider
                 baseUrl: config('traccar.base_url'),
                 email: config('traccar.auth.username'),
                 password: config('traccar.auth.password'),
+                token: config('traccar.auth.token'),
                 headers: [
                     'Accept' => 'application/json'
                 ]

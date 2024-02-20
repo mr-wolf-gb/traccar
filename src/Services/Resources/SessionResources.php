@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: SessionResources.php
- * Modified : mar., 20 févr. 2024 13:26
+ * Modified : mar., 20 févr. 2024 14:07
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -88,7 +88,7 @@ class SessionResources
             url: 'session'
         );
         if (!$response->ok()) {
-            throw new TraccarException($response->toException());
+            throw new TraccarException($response->body());
         }
         return Session::createFromValueArray(Cache::rememberForever($this->service->getCacheKey(), function () use ($response) {
             return [

@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: TraccarService.php
- * Modified : mar., 20 févr. 2024 13:45
+ * Modified : mar., 20 févr. 2024 14:23
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -39,14 +39,16 @@ class TraccarService
      * @param string $baseUrl
      * @param string $email
      * @param string $password
+     * @param string|null $token
      * @param array $headers
      * @throws TraccarException
      */
     public function __construct(
-        private string $baseUrl,
-        private string $email,
-        private string $password,
-        private array  $headers)
+        private string  $baseUrl,
+        private string  $email,
+        private string  $password,
+        private ?string $token,
+        private array   $headers)
     {
         $this->cacheKey = Str::slug($email, '_') . '_traccar_auth';
         if (!Cache::has($this->cacheKey) && !empty($this->baseUrl) && !empty($this->email) && !empty($this->password)) {
@@ -60,6 +62,16 @@ class TraccarService
     public function sessionRepository(): SessionResources
     {
         return new SessionResources($this);
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(?string $token): void
+    {
+        $this->token = $token;
     }
 
     /**

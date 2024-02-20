@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: config.php
- * Modified : ven., 16 févr. 2024 14:58
+ * Modified : mar., 20 févr. 2024 14:25
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -15,6 +15,7 @@ return [
     'auth' => [
         'username' => env('TRACCAR_USERNAME'),
         'password' => env('TRACCAR_PASSWORD'),
+        'token' => env('TRACCAR_TOKEN'),
     ],
     'database' => [
         'connection' => env('TRACCAR_DB_CONNECTION', 'mysql'),

@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: BuildBaseRequest.php
- * Modified : ven., 16 févr. 2024 14:45
+ * Modified : mar., 20 févr. 2024 14:24
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -11,15 +11,18 @@
 namespace MrWolfGb\Traccar\Services\Concerns;
 
 use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use MrWolfGb\Traccar\Exceptions\TraccarException;
 
 trait BuildBaseRequest
 {
+    /**
+     * @throws TraccarException
+     */
     public function buildRequestWithAccessToken(): PendingRequest
     {
-        $authArray = Cache::get($this->getCacheKey());
-        return $this->withBaseUrl()->withQueryParameters(["token" => $authArray["token"] ?: config('traccar.token')]);
+        if (empty($this->getToken())) throw new TraccarException("No access token provided.");
+        return $this->withBaseUrl()->withQueryParameters(["token" => $this->getToken()]);
     }
 
     public function withBaseUrl(): PendingRequest
