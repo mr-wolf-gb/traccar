@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: TraccarService.php
- * Modified : ven., 16 févr. 2024 14:52
+ * Modified : mar., 20 févr. 2024 13:45
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -14,8 +14,10 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Services\Concerns\BuildBaseRequest;
+use MrWolfGb\Traccar\Services\Concerns\CanSendDeleteRequest;
 use MrWolfGb\Traccar\Services\Concerns\CanSendGetRequest;
 use MrWolfGb\Traccar\Services\Concerns\CanSendPostRequest;
+use MrWolfGb\Traccar\Services\Concerns\CanSendPutRequest;
 use MrWolfGb\Traccar\Services\Resources\DeviceResources;
 use MrWolfGb\Traccar\Services\Resources\DriverResources;
 use MrWolfGb\Traccar\Services\Resources\EventResources;
@@ -23,12 +25,13 @@ use MrWolfGb\Traccar\Services\Resources\GeofenceResources;
 use MrWolfGb\Traccar\Services\Resources\GroupResources;
 use MrWolfGb\Traccar\Services\Resources\NotificationResources;
 use MrWolfGb\Traccar\Services\Resources\PositionResources;
+use MrWolfGb\Traccar\Services\Resources\ServerResources;
 use MrWolfGb\Traccar\Services\Resources\SessionResources;
 use MrWolfGb\Traccar\Services\Resources\UserResources;
 
 class TraccarService
 {
-    use BuildBaseRequest, CanSendGetRequest, CanSendPostRequest;
+    use BuildBaseRequest, CanSendGetRequest, CanSendPostRequest, CanSendPutRequest, CanSendDeleteRequest;
 
     public string $cacheKey;
 
@@ -46,7 +49,7 @@ class TraccarService
         private array  $headers)
     {
         $this->cacheKey = Str::slug($email, '_') . '_traccar_auth';
-        if (!Cache::has($this->cacheKey)) {
+        if (!Cache::has($this->cacheKey) && !empty($this->baseUrl) && !empty($this->email) && !empty($this->password)) {
             $this->sessionRepository()->createNewSession();
         }
     }
@@ -143,6 +146,14 @@ class TraccarService
     {
         $this->cacheKey = $cacheKey;
         return $this;
+    }
+
+    /**
+     * @return ServerResources
+     */
+    public function serverRepository(): ServerResources
+    {
+        return new ServerResources($this);
     }
 
     /**

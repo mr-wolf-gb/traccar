@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: SessionResources.php
- * Modified : lun., 19 févr. 2024 09:54
+ * Modified : mar., 20 févr. 2024 13:26
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -23,21 +23,6 @@ class SessionResources
 
     public function __construct(public TraccarService $service)
     {
-    }
-
-    /**
-     * @throws TraccarException
-     */
-    public function fetchServerInformation(): array
-    {
-        $response = $this->service->get(
-            request: $this->service->buildRequestWithAccessToken(),
-            url: 'server'
-        );
-        if (!$response->ok()) {
-            throw new TraccarException($response->toException());
-        }
-        return $response->json();
     }
 
     public function getCookies(): Application|CookieJar|Cookie|\Illuminate\Contracts\Foundation\Application

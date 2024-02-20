@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: WOLF
- * Name: User.php
- * Modified : mar., 20 févr. 2024 13:22
+ * Name: Server.php
+ * Modified : mar., 20 févr. 2024 13:24
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -13,47 +13,44 @@ namespace MrWolfGb\Traccar\Models;
 use Illuminate\Database\Eloquent\Model;
 use MrWolfGb\Traccar\Trait\ArrayToModel;
 
-class User extends Model
+class Server extends Model
 {
     use ArrayToModel;
 
     protected $fillable = [
         'id',
-        'name',
-        'email',
-        'phone',
+        'registration',
         'readonly',
-        'administrator',
+        'deviceReadonly',
+        'limitCommands',
         'map',
+        'bingKey',
+        'mapUrl',
+        'poiLayer',
         'latitude',
         'longitude',
         'zoom',
-        'password',
         'twelveHourFormat',
+        'version',
+        'forceSettings',
         'coordinateFormat',
-        'disabled',
-        'expirationTime',
-        'deviceLimit',
-        'userLimit',
-        'deviceReadonly',
-        'limitCommands',
-        'fixedEmail',
-        'poiLayer',
+        'openIdEnabled',
+        'openIdForce',
         'attribs',
     ];
 
     protected $casts = [
+        'registration' => 'boolean',
         'readonly' => 'boolean',
-        'administrator' => 'boolean',
+        'deviceReadonly' => 'boolean',
+        'limitCommands' => 'boolean',
         'latitude' => 'float',
         'longitude' => 'float',
         'zoom' => 'integer',
         'twelveHourFormat' => 'boolean',
-        'disabled' => 'boolean',
-        'expirationTime' => 'datetime',
-        'deviceReadonly' => 'boolean',
-        'limitCommands' => 'boolean',
-        'fixedEmail' => 'boolean',
+        'forceSettings' => 'boolean',
+        'openIdEnabled' => 'boolean',
+        'openIdForce' => 'boolean',
         'attribs' => 'array',
     ];
 
