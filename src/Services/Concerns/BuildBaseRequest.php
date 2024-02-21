@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: BuildBaseRequest.php
- * Modified : mar., 20 févr. 2024 14:24
+ * Modified : mer., 21 févr. 2024 13:29
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -26,6 +26,13 @@ trait BuildBaseRequest
         return $this->withBaseUrl()->withQueryParameters(["token" => $this->getToken()]);
     }
 
+    public function withBaseUrl(): PendingRequest
+    {
+        return Http::baseUrl(
+            url: $this->baseUrl,
+        )->withHeaders($this->headers);
+    }
+
     /**
      * @throws TraccarException
      */
@@ -36,10 +43,11 @@ trait BuildBaseRequest
         return $this->withBaseUrl()->withCookies([$session["Name"] => $session["Value"]], $session["Domain"]);
     }
 
-    public function withBaseUrl(): PendingRequest
+    public function withBaseUrlWithoutApi(): PendingRequest
     {
+        $urlParts = parse_url($this->baseUrl);
         return Http::baseUrl(
-            url: $this->baseUrl,
+            url: $urlParts["scheme"] . "://" . $urlParts["host"] . (empty($urlParts["port"]) ? "" : ":" . $urlParts["port"]),
         )->withHeaders($this->headers);
     }
 

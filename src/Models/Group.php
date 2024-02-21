@@ -2,10 +2,10 @@
 /*
  * Author: WOLF
  * Name: Group.php
- * Modified : lun., 12 févr. 2024 14:04
+ * Modified : mer., 21 févr. 2024 11:29
  * Description: ...
  *
- * Copyright 2024 -[GHAITH BACCARI]-[WS]-
+ * Copyright 2024 -[MR.WOLF]-[WS]-
  */
 
 namespace MrWolfGb\Traccar\Models;
@@ -17,6 +17,14 @@ class Group extends Model
 {
     use ArrayToModel;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'groupId',
+        'attribs',
+    ];
+
+    protected $casts = [
+        'attribs' => 'array',
+    ];
 
 }

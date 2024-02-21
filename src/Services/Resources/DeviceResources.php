@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: DeviceResources.php
- * Modified : mar., 13 févr. 2024 08:35
+ * Modified : mer., 21 févr. 2024 11:34
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -25,14 +25,24 @@ class DeviceResources
     }
 
     /**
+     * @param int $deviceId
+     * @return Device|null
+     * @throws TraccarException
+     */
+    public function getDeviceById(int $deviceId): null|Device
+    {
+        return $this->fetchListDevices(all: false, id: $deviceId)->first();
+    }
+
+    /**
      * @param bool $all
      * @param int|null $userId
      * @param array|int|null $id // device id
-     * @param array|int|null $uniqueId // device unique id
+     * @param array|string|null $uniqueId // device unique id
      * @return Collection
      * @throws TraccarException
      */
-    public function fetchListDevices(bool $all = true, ?int $userId = null, null|array|int $id = null, null|array|int $uniqueId = null): Collection
+    public function fetchListDevices(bool $all = true, ?int $userId = null, null|array|int $id = null, null|array|string $uniqueId = null): Collection
     {
         $query = ["all" => $all];
         if ($userId != null) {
@@ -63,6 +73,26 @@ class DeviceResources
     }
 
     /**
+     * @param int $userId
+     * @return Collection
+     * @throws TraccarException
+     */
+    public function getUserDevices(int $userId): Collection
+    {
+        return $this->fetchListDevices(all: false, userId: $userId);
+    }
+
+    /**
+     * @param string $uniqueId
+     * @return Device|null
+     * @throws TraccarException
+     */
+    public function getDeviceByUniqueId(string $uniqueId): null|Device
+    {
+        return $this->fetchListDevices(all: false, uniqueId: $uniqueId)->first();
+    }
+
+    /**
      * @param string $name
      * @param string $uniqueId
      * @param int $id
@@ -75,14 +105,14 @@ class DeviceResources
      * @param string $model
      * @param string $contact
      * @param string $category
-     * @param array $attributes
+     * @param array $attribs
      * @return Device
      * @throws TraccarException
      */
     public function createDevice(string $name, string $uniqueId, int $id = -1, string $status = "",
-                                 bool $disabled = false, ?string $lastUpdate = null, int    $positionId = 0,
-                                 int $groupId = 0, string $phone = "", string $model = "", string $contact = "",
-                                 string $category = "", array $attributes = []
+                                 bool   $disabled = false, ?string $lastUpdate = null, int $positionId = 0,
+                                 int    $groupId = 0, string $phone = "", string $model = "", string $contact = "",
+                                 string $category = "", array $attribs = []
     ): Device
     {
         $response = $this->service->post(
@@ -101,7 +131,7 @@ class DeviceResources
                 'model' => $model,
                 'contact' => $contact,
                 'category' => $category,
-                'attributes' => $attributes,
+                'attributes' => empty($attribs) ? null : $attribs
             ]
         );
         if (!$response->ok()) {
@@ -149,7 +179,7 @@ class DeviceResources
         unset($putData["attribs"]);
         $response = $this->service->put(
             request: $this->service->buildRequestWithBasicAuth(),
-            url: 'devices/'.$device->id,
+            url: 'devices/' . $device->id,
             payload: $putData
         );
         if (!$response->ok()) {
@@ -184,11 +214,12 @@ class DeviceResources
      */
     public function updateTotalDistanceAndHoursOfDevice(int|Device $device, int $totalDistance = 0, int $hours = 0): bool
     {
+        $deviceId = $device instanceof Device ? $device->id : $device;
         $response = $this->service->put(
             request: $this->service->buildRequestWithBasicAuth(),
-            url: 'devices/' . ($device instanceof Device ? $device->id : $device).'/accumulators',
+            url: "devices/$deviceId/accumulators",
             payload: [
-                'deviceId' => $device instanceof Device ? $device->id : $device,
+                'deviceId' => $deviceId,
                 'totalDistance' => $totalDistance,
                 'hours' => $hours
             ]
