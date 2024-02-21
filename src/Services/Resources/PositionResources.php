@@ -59,26 +59,26 @@ class PositionResources
     }
 
     /**
-     * @param string $uniqueId
-     * @param bool $valid
-     * @param string $timestamp
-     * @param float $lat
-     * @param float $lon
-     * @param string|null $location
-     * @param string|null $cell
-     * @param string|null $wifi
-     * @param int $speed
-     * @param string|null $bearing
-     * @param float $altitude
-     * @param float|null $accuracy
-     * @param string|null $hdop
-     * @param string|null $batt
-     * @param string|null $driverUniqueId
-     * @param bool|null $charge
+     * @param string $uniqueId The unique identifier for the device. This is a mandatory parameter.
+     * @param bool $valid Indicates if the location is valid. Acceptable values are "true", "false", "1", and "0".
+     * @param string $timestamp The timestamp of the position. It can be in seconds or milliseconds since epoch, ISO 8601 format, or "yyyy-MM-dd HH:mm:ss" format.
+     * @param float $lat Latitude of the position. This should be a double value.
+     * @param float $lon Longitude of the position. This should be a double value.
+     * @param string|null $location A comma-separated string in the format "latitude,longitude".
+     * @param string|null $cell Cell tower information in the format "mcc,mnc,lac,cellId,signalStrength" or "mcc,mnc,lac,cellId".
+     * @param string|null $wifi WiFi access point information in the format "macAddress:signalStrength".
+     * @param int $speed Speed of the device. Units are configurable with knots as a default.
+     * @param string|null $bearing The direction in which the device is moving, in degrees.
+     * @param float $altitude Altitude of the device in meters.
+     * @param float|null $accuracy Accuracy of the position in meters.
+     * @param string|null $hdop Horizontal dilution of precision.
+     * @param string|null $batt Battery level of the device.
+     * @param string|null $driverUniqueId Unique identifier for the driver.
+     * @param bool|null $charge Indicates if the device is charging. Acceptable values are `true` and `false`.
      * @param ...$extra
      * @return void
      * @throws TraccarException
-     * @docs //https://www.traccar.org/osmand/
+     * @link https://www.traccar.org/osmand/
      */
     public function OsmAnd(string $uniqueId, bool $valid = true, string $timestamp = '',
                            float  $lat = 0.0, float $lon = 0.0, string $location = null, string $cell = null,
@@ -87,13 +87,13 @@ class PositionResources
                            bool   $charge = null, ...$extra
     ): void
     {
-        $timestamp = Carbon::parse($timestamp ?: now())->format('Y-m-d H:i:s');
+        $timestamp = empty($timestamp) ? now() : Carbon::parse($timestamp);
         $params = array_merge([
-            "id" => $uniqueId, "valid" => $valid, "timestamp" => $timestamp, "latitude" => $lat,
+            "id" => $uniqueId, "valid" => $valid, "timestamp" => $timestamp->timestamp, "latitude" => $lat,
             "longitude" => $lon, "location" => $location, "cell" => $cell, "wifi" => $wifi, "speed" => $speed,
             "bearing" => $bearing, "altitude" => $altitude, "accuracy" => $accuracy, "hdop" => $hdop,
             "batt" => $batt, "driverUniqueId" => $driverUniqueId, "charge" => $charge
-        ], $extra['extra']);
+        ], $extra);
         $response = $this->service->post(
             request: $this->service->withBaseUrlWithoutApi()->withQueryParameters($params),
             url: "",
