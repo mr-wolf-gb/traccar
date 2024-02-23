@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: PositionResources.php
- * Modified : mer., 21 févr. 2024 13:30
+ * Modified : ven., 23 févr. 2024 09:25
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -95,7 +95,7 @@ class PositionResources
             "batt" => $batt, "driverUniqueId" => $driverUniqueId, "charge" => $charge
         ], $extra['extra']);
         $response = $this->service->post(
-            request: $this->service->withBaseUrlWithoutApi()->withQueryParameters($params),
+            request: $this->service->withBaseUrl(useAPI: false)->withQueryParameters($params),
             url: "",
         );
         if (!$response->ok()) {

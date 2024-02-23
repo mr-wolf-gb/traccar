@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: TraccarServiceProvider.php
- * Modified : mar., 20 févr. 2024 14:25
+ * Modified : ven., 23 févr. 2024 11:46
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -65,7 +65,8 @@ class TraccarServiceProvider extends ServiceProvider
 
             // Registering package commands.
             $this->commands([
-                Commands\SyncDevicesCommand::class
+                Commands\SyncDevicesCommand::class,
+                Commands\WsListenCommand::class
             ]);
 
             AboutCommand::add('Traccar', fn() => [

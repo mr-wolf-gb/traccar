@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: BuildBaseRequest.php
- * Modified : mer., 21 févr. 2024 13:29
+ * Modified : ven., 23 févr. 2024 09:24
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -26,10 +26,10 @@ trait BuildBaseRequest
         return $this->withBaseUrl()->withQueryParameters(["token" => $this->getToken()]);
     }
 
-    public function withBaseUrl(): PendingRequest
+    public function withBaseUrl(bool $useAPI = true): PendingRequest
     {
         return Http::baseUrl(
-            url: $this->baseUrl,
+            url: rtrim($this->baseUrl, "/") . ($useAPI ? "/api/" : ""),
         )->withHeaders($this->headers);
     }
 
@@ -41,14 +41,6 @@ trait BuildBaseRequest
         if (!Cache::has($this->getCacheKey())) throw new TraccarException("No cookies found for this session.");
         $session = Cache::get($this->getCacheKey())["session"];
         return $this->withBaseUrl()->withCookies([$session["Name"] => $session["Value"]], $session["Domain"]);
-    }
-
-    public function withBaseUrlWithoutApi(): PendingRequest
-    {
-        $urlParts = parse_url($this->baseUrl);
-        return Http::baseUrl(
-            url: $urlParts["scheme"] . "://" . $urlParts["host"] . (empty($urlParts["port"]) ? "" : ":" . $urlParts["port"]),
-        )->withHeaders($this->headers);
     }
 
     public function buildRequestWithBasicAuth(null|string $username = null, null|string $password = null): PendingRequest
