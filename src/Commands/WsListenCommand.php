@@ -12,11 +12,10 @@ namespace MrWolfGb\Traccar\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
-use MrWolfGb\Traccar\Events\PositionEvent;
 use MrWolfGb\Traccar\Services\TraccarService;
 use Symfony\Component\Console\Attribute\AsCommand;
-use WebSocket\Client;
-use WebSocket\ConnectionException;
+//use WebSocket\Client;
+//use WebSocket\ConnectionException;
 
 /**
  * @internal
@@ -27,6 +26,8 @@ class WsListenCommand extends Command
     use ConfirmableTrait;
 
     /**
+     * This just implementation to read ws with package "textalk/websocket": "^1.5"
+     *
      * The command's signature.
      *
      * @var string
@@ -55,17 +56,16 @@ class WsListenCommand extends Command
      */
     public function handle(TraccarService $service): int
     {
-        $wsUrl = config('traccar.websocket_url');
-        if ($this->option('ws')) {
-            $wsUrl = $this->option('ws');
-        }
-        $sessionCookies = $service->sessionRepository()->getCookies();
-        //dd($sessionCookies);
-//        $session = Cache::get($service->getCacheKey());
+//        $wsUrl = config('traccar.websocket_url');
+//        if ($this->option('ws')) {
+//            $wsUrl = $this->option('ws');
+//        }
+//        $sessionCookies = $service->sessionRepository()->getCookies();
+//
 //        if ($this->option('session-id')) {
 //            $wsUrl .= '?session=' . $this->option('session-id');
-//        } elseif ($session) {
-//            $sessionID = explode('.', $session["session"]["Value"])[0];
+//        } elseif ($sessionCookies->getValue()) {
+//            $sessionID = explode('.', $sessionCookies->getValue())[0];
 //            $wsUrl .= '?session=' . $sessionID;
 //        } elseif ($this->option('token')) {
 //            $wsUrl .= '?token=' . $this->option('token');
@@ -75,37 +75,40 @@ class WsListenCommand extends Command
 //            $this->error("No session or token provided");
 //            return self::FAILURE;
 //        }
-        $this->info("Connecting to: " . $wsUrl);
-
-        $client = new Client(
-            uri: $wsUrl,
-            options: [
-                'filter' => ['text'],
-                'headers' => [
-                    "Cookie" => $sessionCookies->getName() . "=" . $sessionCookies->getValue()
-                ],
-                'timeout' => 60,
-            ],
-        );
-        while (true) {
-            try {
-                $data = $client->receive();
-                if (strlen($data) > 2) {
-                    $dataObject = json_decode($data, true);
-                    if (array_key_exists('positions', $dataObject)) {
-                        event(new PositionEvent($dataObject['positions']));
-                    } elseif (array_key_exists('events', $dataObject)) {
-                        $this->info("dispatch Event event");
-                    } else {
-                        $this->info("dispatch Event unknown");
-                    }
-                    if ($this->option('log')) {
-                        $this->info($data);
-                    }
-                }
-            } catch (ConnectionException $e) {
-                $this->error($e->getMessage());
-            }
-        }
+//        $this->info("Connecting to: " . $wsUrl);
+//
+//        $client = new Client(
+//            uri: $wsUrl,
+//            options: [
+//                'filter' => ['text'],
+//                'headers' => [
+//                    "Cookie" => $sessionCookies->getName() . "=" . $sessionCookies->getValue()
+//                ],
+//                'timeout' => 60,
+//            ],
+//        );
+//        while (true) {
+//            try {
+//                $data = $client->receive();
+//                if (strlen($data) > 2) {
+//                    $dataObject = json_decode($data, true);
+//                    if (array_key_exists('positions', $dataObject)) {
+//                        $this->info("dispatch Event positions");
+//                    } elseif (array_key_exists('events', $dataObject)) {
+//                        $this->info("dispatch Event event");
+//                    } else {
+//                        $this->info("dispatch Event unknown");
+//                    }
+//                    if ($this->option('log')) {
+//                        $this->info($data);
+//                    }
+//                }
+//            } catch (ConnectionException $e) {
+//                $this->error($e->getMessage());
+//                break;
+//            }
+//        }
+//        $client->close();
+        return self::SUCCESS;
     }
 }
