@@ -21,9 +21,7 @@
         }
     ],
     "require": {
-        "php": "^8.1",
-        "textalk/websocket": "^1.5",
-        "ext-openssl": "*"
+        "php": "^8.1"
     },
     "autoload": {
         "psr-4": {

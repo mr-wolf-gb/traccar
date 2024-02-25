@@ -66,7 +66,7 @@ class TraccarServiceProvider extends ServiceProvider
             // Registering package commands.
             $this->commands([
                 Commands\SyncDevicesCommand::class,
-                Commands\WsListenCommand::class
+                //Commands\WsListenCommand::class
             ]);
 
             AboutCommand::add('Traccar', fn() => [

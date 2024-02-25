@@ -13,6 +13,7 @@ namespace MrWolfGb\Traccar\Services\Resources;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
+use MrWolfGb\Traccar\Models\Device;
 use MrWolfGb\Traccar\Models\Position;
 use MrWolfGb\Traccar\Services\TraccarService;
 use MrWolfGb\Traccar\Trait\UrlQueryHelper;
@@ -101,5 +102,27 @@ class PositionResources
         if (!$response->ok()) {
             throw new TraccarException($response->toException());
         }
+    }
+
+    /**
+     * @param int|Device $device
+     * @param string $from
+     * @param string $to
+     * @return bool
+     * @throws TraccarException
+     */
+    public function deletePositions(int|Device $device, string $from, string $to): bool
+    {
+        $query = ["deviceId" => ($device instanceof Device ? $device->id : $device)];
+        $query["from"] = Carbon::parse($from)->format('Y-m-d\TH:i:s\Z');
+        $query["to"] = Carbon::parse($to)->format('Y-m-d\TH:i:s\Z');
+        $response = $this->service->delete(
+            request: $this->service->buildRequestWithBasicAuth()->withQueryParameters($query),
+            url: 'positions'
+        );
+        if (!$response->noContent()) {
+            throw new TraccarException($response->toException());
+        }
+        return true;
     }
 }
