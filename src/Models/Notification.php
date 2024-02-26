@@ -2,10 +2,10 @@
 /*
  * Author: WOLF
  * Name: Notification.php
- * Modified : lun., 12 févr. 2024 14:09
+ * Modified : lun., 26 févr. 2024 09:45
  * Description: ...
  *
- * Copyright 2024 -[GHAITH BACCARI]-[WS]-
+ * Copyright 2024 -[MR.WOLF]-[WS]-
  */
 
 namespace MrWolfGb\Traccar\Models;
@@ -17,6 +17,17 @@ class Notification extends Model
 {
     use ArrayToModel;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'type',
+        'notificators',
+        'always',
+        'commandId',
+        'calendarId',
+        'attribs',
+    ];
+
+    protected $casts = [
+        'attribs' => 'array',
+    ];
 
 }
