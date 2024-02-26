@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: GeofenceResources.php
- * Modified : lun., 26 févr. 2024 11:34
+ * Modified : lun., 26 févr. 2024 15:17
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -138,7 +138,7 @@ class GeofenceResources extends BaseResource
     {
         $response = $this->service->delete(
             request: $this->service->buildRequestWithBasicAuth(),
-            url: 'users/' . ($geofence instanceof Geofence ? $geofence->id : $geofence)
+            url: 'geofences/' . ($geofence instanceof Geofence ? $geofence->id : $geofence)
         );
         if (!$response->noContent()) {
             throw new TraccarException($response->toException());
