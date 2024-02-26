@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: PositionResources.php
- * Modified : lun., 26 févr. 2024 11:35
+ * Modified : lun., 26 févr. 2024 12:41
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -39,8 +39,13 @@ class PositionResources extends BaseResource
                 $query["id"] = $id;
             }
         }
-        $query["from"] = Carbon::parse($from)->format('Y-m-d\TH:i:s\Z');
-        $query["to"] = Carbon::parse($to)->format('Y-m-d\TH:i:s\Z');
+        $from = Carbon::parse($from);
+        $to = Carbon::parse($to);
+        if ($from->greaterThan($to)) {
+            throw new TraccarException("The from date cannot be greater than the to date");
+        }
+        $query["from"] = $from->format('Y-m-d\TH:i:s\Z');
+        $query["to"] = $to->format('Y-m-d\TH:i:s\Z');
         $response = $this->service->get(
             request: $this->service->buildRequestWithBasicAuth(),
             url: 'positions',
@@ -107,8 +112,13 @@ class PositionResources extends BaseResource
     public function deletePositions(int|Device $device, string $from, string $to): bool
     {
         $query = ["deviceId" => ($device instanceof Device ? $device->id : $device)];
-        $query["from"] = Carbon::parse($from)->format('Y-m-d\TH:i:s\Z');
-        $query["to"] = Carbon::parse($to)->format('Y-m-d\TH:i:s\Z');
+        $from = Carbon::parse($from);
+        $to = Carbon::parse($to);
+        if ($from->greaterThan($to)) {
+            throw new TraccarException("The from date cannot be greater than the to date");
+        }
+        $query["from"] = $from->format('Y-m-d\TH:i:s\Z');
+        $query["to"] = $to->format('Y-m-d\TH:i:s\Z');
         $response = $this->service->delete(
             request: $this->service->buildRequestWithBasicAuth()->withQueryParameters($query),
             url: 'positions'

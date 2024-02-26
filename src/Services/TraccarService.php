@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: TraccarService.php
- * Modified : mar., 20 févr. 2024 14:23
+ * Modified : lun., 26 févr. 2024 11:41
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -25,6 +25,7 @@ use MrWolfGb\Traccar\Services\Resources\GeofenceResources;
 use MrWolfGb\Traccar\Services\Resources\GroupResources;
 use MrWolfGb\Traccar\Services\Resources\NotificationResources;
 use MrWolfGb\Traccar\Services\Resources\PositionResources;
+use MrWolfGb\Traccar\Services\Resources\ReportResources;
 use MrWolfGb\Traccar\Services\Resources\ServerResources;
 use MrWolfGb\Traccar\Services\Resources\SessionResources;
 use MrWolfGb\Traccar\Services\Resources\UserResources;
@@ -64,11 +65,18 @@ class TraccarService
         return new SessionResources($this);
     }
 
+    /**
+     * @return string|null
+     */
     public function getToken(): ?string
     {
         return $this->token;
     }
 
+    /**
+     * @param string|null $token
+     * @return void
+     */
     public function setToken(?string $token): void
     {
         $this->token = $token;
@@ -154,6 +162,10 @@ class TraccarService
         return $this->cacheKey ?? Str::slug($this->email, '_') . '_traccar_auth';
     }
 
+    /**
+     * @param string $cacheKey
+     * @return $this
+     */
     public function setCacheKey(string $cacheKey): TraccarService
     {
         $this->cacheKey = $cacheKey;
@@ -230,5 +242,13 @@ class TraccarService
     public function driverRepository(): DriverResources
     {
         return new DriverResources($this);
+    }
+
+    /**
+     * @return ReportResources
+     */
+    public function reportRepository(): ReportResources
+    {
+        return new ReportResources($this);
     }
 }
