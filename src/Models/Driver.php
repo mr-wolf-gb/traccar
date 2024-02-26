@@ -2,10 +2,10 @@
 /*
  * Author: WOLF
  * Name: Driver.php
- * Modified : mar., 13 févr. 2024 08:20
+ * Modified : lun., 26 févr. 2024 10:55
  * Description: ...
  *
- * Copyright 2024 -[GHAITH BACCARI]-[WS]-
+ * Copyright 2024 -[MR.WOLF]-[WS]-
  */
 
 namespace MrWolfGb\Traccar\Models;
@@ -17,6 +17,14 @@ class Driver extends Model
 {
     use ArrayToModel;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'uniqueId',
+        'attribs',
+    ];
+
+    protected $casts = [
+        'attribs' => 'array',
+    ];
 
 }
