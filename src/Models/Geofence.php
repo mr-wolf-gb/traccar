@@ -2,10 +2,10 @@
 /*
  * Author: WOLF
  * Name: Geofence.php
- * Modified : lun., 12 févr. 2024 14:09
+ * Modified : lun., 26 févr. 2024 08:16
  * Description: ...
  *
- * Copyright 2024 -[GHAITH BACCARI]-[WS]-
+ * Copyright 2024 -[MR.WOLF]-[WS]-
  */
 
 namespace MrWolfGb\Traccar\Models;
@@ -17,6 +17,16 @@ class Geofence extends Model
 {
     use ArrayToModel;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'description',
+        'area',
+        'calendarId',
+        'attribs',
+    ];
+
+    protected $casts = [
+        'attribs' => 'array',
+    ];
 
 }
