@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: DeviceResources.php
- * Modified : mer., 21 févr. 2024 11:34
+ * Modified : lun., 26 févr. 2024 10:20
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -13,6 +13,8 @@ namespace MrWolfGb\Traccar\Services\Resources;
 use Illuminate\Support\Collection;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Device;
+use MrWolfGb\Traccar\Models\Geofence;
+use MrWolfGb\Traccar\Models\Notification;
 use MrWolfGb\Traccar\Services\TraccarService;
 use MrWolfGb\Traccar\Trait\UrlQueryHelper;
 
@@ -222,6 +224,102 @@ class DeviceResources
                 'deviceId' => $deviceId,
                 'totalDistance' => $totalDistance,
                 'hours' => $hours
+            ]
+        );
+        if (!$response->noContent()) {
+            throw new TraccarException($response->toException());
+        }
+        return true;
+    }
+
+    /**
+     * @param int|Device $device
+     * @param int|Geofence $geofence
+     * @return bool
+     * @throws TraccarException
+     */
+    public function assignDeviceGeofence(int|Device $device, int|Geofence $geofence): bool
+    {
+        $deviceId = $device instanceof Device ? $device->id : $device;
+        $geofenceId = $geofence instanceof Geofence ? $geofence->id : $geofence;
+        $response = $this->service->post(
+            request: $this->service->buildRequestWithBasicAuth(),
+            url: "permissions",
+            payload: [
+                'deviceId' => $deviceId,
+                'geofenceId' => $geofenceId
+            ]
+        );
+        if (!$response->noContent()) {
+            throw new TraccarException($response->toException());
+        }
+        return true;
+    }
+
+    /**
+     * @param int|Device $device
+     * @param int|Geofence $geofence
+     * @return bool
+     * @throws TraccarException
+     */
+    public function removeDeviceGeofence(int|Device $device, int|Geofence $geofence): bool
+    {
+        $deviceId = $device instanceof Device ? $device->id : $device;
+        $geofenceId = $geofence instanceof Geofence ? $geofence->id : $geofence;
+        $response = $this->service->delete(
+            request: $this->service->buildRequestWithBasicAuth(),
+            url: "permissions",
+            payload: [
+                'deviceId' => $deviceId,
+                'geofenceId' => $geofenceId
+            ]
+        );
+        if (!$response->noContent()) {
+            throw new TraccarException($response->toException());
+        }
+        return true;
+    }
+
+    /**
+     * @param int|Device $device
+     * @param int|Notification $notification
+     * @return bool
+     * @throws TraccarException
+     */
+    public function assignDeviceNotification(int|Device $device, int|Notification $notification): bool
+    {
+        $deviceId = $device instanceof Device ? $device->id : $device;
+        $notificationId = $notification instanceof Notification ? $notification->id : $notification;
+        $response = $this->service->post(
+            request: $this->service->buildRequestWithBasicAuth(),
+            url: "permissions",
+            payload: [
+                'deviceId' => $deviceId,
+                'notificationId' => $notificationId
+            ]
+        );
+        if (!$response->noContent()) {
+            throw new TraccarException($response->toException());
+        }
+        return true;
+    }
+
+    /**
+     * @param int|Device $device
+     * @param int|Notification $notification
+     * @return bool
+     * @throws TraccarException
+     */
+    public function removeDeviceNotification(int|Device $device, int|Notification $notification): bool
+    {
+        $deviceId = $device instanceof Device ? $device->id : $device;
+        $notificationId = $notification instanceof Notification ? $notification->id : $notification;
+        $response = $this->service->delete(
+            request: $this->service->buildRequestWithBasicAuth(),
+            url: "permissions",
+            payload: [
+                'deviceId' => $deviceId,
+                'notificationId' => $notificationId
             ]
         );
         if (!$response->noContent()) {

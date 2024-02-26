@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: UserResources.php
- * Modified : mar., 20 févr. 2024 13:32
+ * Modified : lun., 26 févr. 2024 10:19
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -12,6 +12,7 @@ namespace MrWolfGb\Traccar\Services\Resources;
 
 use Illuminate\Support\Collection;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
+use MrWolfGb\Traccar\Models\Device;
 use MrWolfGb\Traccar\Models\User;
 use MrWolfGb\Traccar\Services\TraccarService;
 
@@ -166,6 +167,54 @@ class UserResources
         $response = $this->service->delete(
             request: $this->service->buildRequestWithBasicAuth(),
             url: 'users/' . ($user instanceof User ? $user->id : $user)
+        );
+        if (!$response->noContent()) {
+            throw new TraccarException($response->toException());
+        }
+        return true;
+    }
+
+    /**
+     * @param int|User $user
+     * @param int|Device $device
+     * @return bool
+     * @throws TraccarException
+     */
+    public function assignUserDevice(int|User $user, int|Device $device): bool
+    {
+        $deviceId = $device instanceof Device ? $device->id : $device;
+        $userId = $user instanceof User ? $user->id : $user;
+        $response = $this->service->post(
+            request: $this->service->buildRequestWithBasicAuth(),
+            url: "permissions",
+            payload: [
+                'deviceId' => $deviceId,
+                'userId' => $userId
+            ]
+        );
+        if (!$response->noContent()) {
+            throw new TraccarException($response->toException());
+        }
+        return true;
+    }
+
+    /**
+     * @param int|User $user
+     * @param int|Device $device
+     * @return bool
+     * @throws TraccarException
+     */
+    public function removeUserDevice(int|User $user, int|Device $device): bool
+    {
+        $deviceId = $device instanceof Device ? $device->id : $device;
+        $userId = $user instanceof User ? $user->id : $user;
+        $response = $this->service->delete(
+            request: $this->service->buildRequestWithBasicAuth(),
+            url: "permissions",
+            payload: [
+                'deviceId' => $deviceId,
+                'userId' => $userId
+            ]
         );
         if (!$response->noContent()) {
             throw new TraccarException($response->toException());
