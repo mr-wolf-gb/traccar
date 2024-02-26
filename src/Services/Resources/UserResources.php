@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: UserResources.php
- * Modified : lun., 26 févr. 2024 10:19
+ * Modified : lun., 26 févr. 2024 11:35
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -14,18 +14,9 @@ use Illuminate\Support\Collection;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Device;
 use MrWolfGb\Traccar\Models\User;
-use MrWolfGb\Traccar\Services\TraccarService;
 
-/**
- *
- */
-class UserResources
+class UserResources extends BaseResource
 {
-    public function __construct(public TraccarService $service)
-    {
-    }
-
-
     /**
      * @param string|null $userId Can only be used by admin or manager users
      * @return Collection

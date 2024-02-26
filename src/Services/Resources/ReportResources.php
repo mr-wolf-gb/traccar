@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: WOLF
- * Name: EventResources.php
- * Modified : lun., 26 févr. 2024 11:34
+ * Name: ReportResources.php
+ * Modified : lun., 26 févr. 2024 11:35
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -13,9 +13,8 @@ namespace MrWolfGb\Traccar\Services\Resources;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Event;
 
-class EventResources extends BaseResource
+class ReportResources extends BaseResource
 {
-
     /**
      * @param int $eventID
      * @return Event

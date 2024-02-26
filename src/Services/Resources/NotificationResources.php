@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: NotificationResources.php
- * Modified : lun., 26 févr. 2024 10:10
+ * Modified : lun., 26 févr. 2024 11:34
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -14,16 +14,9 @@ use Illuminate\Support\Collection;
 use MrWolfGb\Traccar\Enums\NotificatorType;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Notification;
-use MrWolfGb\Traccar\Services\TraccarService;
-use MrWolfGb\Traccar\Trait\UrlQueryHelper;
 
-class NotificationResources
+class NotificationResources extends BaseResource
 {
-    use UrlQueryHelper;
-
-    public function __construct(public TraccarService $service)
-    {
-    }
 
     /**
      * @param bool $all Can only be used by admins or managers to fetch all entities

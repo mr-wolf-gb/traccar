@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: GroupResources.php
- * Modified : mer., 21 févr. 2024 11:43
+ * Modified : lun., 26 févr. 2024 11:34
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -13,13 +13,9 @@ namespace MrWolfGb\Traccar\Services\Resources;
 use Illuminate\Support\Collection;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Group;
-use MrWolfGb\Traccar\Services\TraccarService;
 
-class GroupResources
+class GroupResources extends BaseResource
 {
-    public function __construct(public TraccarService $service)
-    {
-    }
 
     /**
      * @param bool $all

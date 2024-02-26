@@ -2,10 +2,10 @@
 /*
  * Author: WOLF
  * Name: Event.php
- * Modified : lun., 12 févr. 2024 14:08
+ * Modified : lun., 26 févr. 2024 11:06
  * Description: ...
  *
- * Copyright 2024 -[GHAITH BACCARI]-[WS]-
+ * Copyright 2024 -[MR.WOLF]-[WS]-
  */
 
 namespace MrWolfGb\Traccar\Models;
@@ -17,6 +17,19 @@ class Event extends Model
 {
     use ArrayToModel;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'type',
+        'eventTime',
+        'deviceId',
+        'positionId',
+        'geofenceId',
+        'maintenanceId',
+        'attribs',
+    ];
+
+    protected $casts = [
+        'eventTime' => 'datetime', // ISO 8601 format : Y-m-d\TH:i:s\Z
+        'attribs' => 'array',
+    ];
 
 }

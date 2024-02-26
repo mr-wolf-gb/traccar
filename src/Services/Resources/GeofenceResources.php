@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: GeofenceResources.php
- * Modified : lun., 26 févr. 2024 08:43
+ * Modified : lun., 26 févr. 2024 11:34
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -13,17 +13,9 @@ namespace MrWolfGb\Traccar\Services\Resources;
 use Illuminate\Support\Collection;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Geofence;
-use MrWolfGb\Traccar\Services\TraccarService;
-use MrWolfGb\Traccar\Trait\UrlQueryHelper;
 
-class GeofenceResources
+class GeofenceResources extends BaseResource
 {
-    use UrlQueryHelper;
-
-    public function __construct(public TraccarService $service)
-    {
-    }
-
     /**
      * @param bool $all
      * @param int|null $userId

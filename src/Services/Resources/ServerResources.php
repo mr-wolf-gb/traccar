@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: ServerResources.php
- * Modified : mar., 20 févr. 2024 14:01
+ * Modified : lun., 26 févr. 2024 11:35
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -12,13 +12,9 @@ namespace MrWolfGb\Traccar\Services\Resources;
 
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Server;
-use MrWolfGb\Traccar\Services\TraccarService;
 
-class ServerResources
+class ServerResources extends BaseResource
 {
-    public function __construct(public TraccarService $service)
-    {
-    }
 
     /**
      * @throws TraccarException

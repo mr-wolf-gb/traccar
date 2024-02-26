@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: PositionResources.php
- * Modified : ven., 23 févr. 2024 09:25
+ * Modified : lun., 26 févr. 2024 11:35
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -15,16 +15,9 @@ use Illuminate\Support\Collection;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Device;
 use MrWolfGb\Traccar\Models\Position;
-use MrWolfGb\Traccar\Services\TraccarService;
-use MrWolfGb\Traccar\Trait\UrlQueryHelper;
 
-class PositionResources
+class PositionResources extends BaseResource
 {
-    use UrlQueryHelper;
-
-    public function __construct(public TraccarService $service)
-    {
-    }
 
     /**
      * @param string $from

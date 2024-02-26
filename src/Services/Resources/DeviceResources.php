@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: DeviceResources.php
- * Modified : lun., 26 févr. 2024 10:20
+ * Modified : lun., 26 févr. 2024 11:34
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -15,16 +15,9 @@ use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Device;
 use MrWolfGb\Traccar\Models\Geofence;
 use MrWolfGb\Traccar\Models\Notification;
-use MrWolfGb\Traccar\Services\TraccarService;
-use MrWolfGb\Traccar\Trait\UrlQueryHelper;
 
-class DeviceResources
+class DeviceResources extends BaseResource
 {
-    use UrlQueryHelper;
-
-    public function __construct(public TraccarService $service)
-    {
-    }
 
     /**
      * @param int $deviceId

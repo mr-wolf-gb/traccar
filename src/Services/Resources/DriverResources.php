@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: DriverResources.php
- * Modified : lun., 26 févr. 2024 11:01
+ * Modified : lun., 26 févr. 2024 11:34
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -13,13 +13,9 @@ namespace MrWolfGb\Traccar\Services\Resources;
 use Illuminate\Support\Collection;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Driver;
-use MrWolfGb\Traccar\Services\TraccarService;
 
-class DriverResources
+class DriverResources extends BaseResource
 {
-    public function __construct(public TraccarService $service)
-    {
-    }
 
     public function fetchListDrivers(bool $all = true, ?int $userId = null, ?int $deviceId = null, ?int $groupId = null, bool $refresh = false): Collection
     {

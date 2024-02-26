@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: SessionResources.php
- * Modified : mar., 20 févr. 2024 14:07
+ * Modified : lun., 26 févr. 2024 11:35
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -15,16 +15,10 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Cache;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Session;
-use MrWolfGb\Traccar\Services\TraccarService;
 use Symfony\Component\HttpFoundation\Cookie;
 
-class SessionResources
+class SessionResources extends BaseResource
 {
-
-    public function __construct(public TraccarService $service)
-    {
-    }
-
     public function getCookies(): Application|CookieJar|Cookie|\Illuminate\Contracts\Foundation\Application
     {
         $this->checkSessionID();
