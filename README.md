@@ -11,10 +11,21 @@ This package can interact with Traccar server over API
 - <a href="#installation">Installation</a>
 - <a href="#features-and-usage">Features and Usage</a>
     - <a href="#multi-users-and-servers">Multi-users and servers</a>
-    - <a href="#methodnotallowedhttpexception">MethodNotAllowedHttpException</a>
-    - <a href="#validation-message-is-only-in-default-locale">Validation message is always in default locale</a>
-- <a href="#collaborators">Collaborators</a>
+    - <a href="#available-ressources">Available ressources</a>
+        - <a href="#server">Server</a>
+        - <a href="#session">Session</a>
+        - <a href="#user">User</a>
+        - <a href="#group">Group</a>
+        - <a href="#device">Device</a>
+        - <a href="#geofence">Geofence</a>
+        - <a href="#notification">Notification</a>
+        - <a href="#position">Position</a>
+        - <a href="#event">Event</a>
+        - <a href="#driver">Driver</a>
+        - <a href="#report">Report</a>
 - <a href="#changelog">Changelog</a>
+- <a href="#contributing">Contributing</a>
+- <a href="#credits">Credits</a>
 - <a href="#license">License</a>
 
 ## :wrench: Supported Versions
@@ -73,7 +84,7 @@ public function index(TraccarService $traccarService)
 
 #### Available ressources
 
-- *Server*
+- #### *Server*
 
 Model : **[Server Model](src/Models/Server.php)**
 
@@ -88,7 +99,7 @@ public function index(TraccarService $traccarService)
 }
 ```
 
-- *Session*
+- #### *Session*
 
 Model : **[Session Model](src/Models/Session.php)**
 
@@ -105,7 +116,7 @@ public function index(TraccarService $traccarService)
 }
 ```
 
-- *User*
+- #### *User*
 
 Model : **[User Model](src/Models/User.php)**
 
@@ -138,7 +149,7 @@ public function index(TraccarService $traccarService)
 }
 ```
 
-- *Group*
+- #### *Group*
 
 Model : **[Group Model](src/Models/Group.php)**
 
@@ -159,7 +170,7 @@ public function index(TraccarService $traccarService)
 }
 ```
 
-- *Device*
+- #### *Device*
 
 Model : **[Device Model](src/Models/Device.php)**
 
@@ -199,7 +210,7 @@ public function index(TraccarService $traccarService)
 }
 ```
 
-- *Geofence*
+- #### *Geofence*
 
 Model : **[Geofence Model](src/Models/Geofence.php)**
 
@@ -228,7 +239,7 @@ public function index(TraccarService $traccarService)
 }
 ```
 
-- *Notification*
+- #### *Notification*
 
 Model : **[Notification Model](src/Models/Notification.php)**
 
@@ -268,7 +279,7 @@ public function index(TraccarService $traccarService)
 }
 ```
 
-- *Position*
+- #### *Position*
 
 Model : **[Position Model](src/Models/Position.php)**
 
@@ -293,7 +304,7 @@ public function index(TraccarService $traccarService)
 }
 ```
 
-- *Event*
+- #### *Event*
 
 Model : **[Event Model](src/Models/Event.php)**
 
@@ -305,7 +316,7 @@ public function index(TraccarService $traccarService)
 }
 ```
 
-- *Driver*
+- #### *Driver*
 
 Model : **[Driver Model](src/Models/Driver.php)**
 
@@ -332,7 +343,7 @@ public function index(TraccarService $traccarService)
 }
 ```
 
-- *Report*
+- #### *Report*
 
 Model : **[Report Model](src/Models/Report.php)**
 
