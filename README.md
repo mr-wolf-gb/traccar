@@ -4,7 +4,12 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/mr-wolf-gb/traccar.svg?style=flat-square)](https://packagist.org/packages/mr-wolf-gb/traccar)
 ![GitHub Actions](https://github.com/mr-wolf-gb/traccar/actions/workflows/main.yml/badge.svg)
 
-This package can interact with Traccar server over API
+This Laravel package serves as a seamless integration tool, empowering developers to effortlessly interact with Traccar
+servers through their robust API. Traccar, a powerful GPS tracking platform, becomes more accessible than ever as this
+package streamlines communication between your Laravel application and the Traccar server, offering a wide range of
+functionalities and capabilities. Whether you're retrieving real-time location data, managing devices, or leveraging
+advanced tracking features, this package simplifies the process, enhancing the efficiency and extensibility of your
+Laravel projects.
 
 ## Table of Contents
 
@@ -23,6 +28,8 @@ This package can interact with Traccar server over API
         - <a href="#event">Event</a>
         - <a href="#driver">Driver</a>
         - <a href="#report">Report</a>
+- <a href="#traccar-custom-server">Traccar Custom Server and Features</a>
+- <a href="#testing">Testing</a>
 - <a href="#changelog">Changelog</a>
 - <a href="#contributing">Contributing</a>
 - <a href="#credits">Credits</a>
@@ -389,6 +396,39 @@ public function index(TraccarService $traccarService)
         deviceId: [1,2],
         //groupId: [1,2], // optional
     );
+}
+```
+
+## Traccar Custom Server
+
+- **[Repository link](https://github.com/mr-wolf-gb/traccar-custom)**
+
+This version is a fork of the original [TRACCAR](https://github.com/traccar/traccar) repository aimed at adding some
+useful features like :
+
+1. **_`Websocket` can be accessed from external Hosts (App):_**
+2. **_`api/session/check-sid?sid=[SESSION_ID]` to check if the session is still active or not_**
+
+## Features for this version of Traccar
+
+#### Middleware
+
+`TraccarSession` is a middleware that adds the session ID of traccar user to the View.
+
+```php
+// route web.php
+Route::get('/', [HomeController::class, 'index'])->middleware('TraccarSession');
+```
+
+```php
+// blade view
+const socket = new WebSocket("{{config('traccar.websocket_url')}}?session={{$traccarSessionId}}");
+socket.onerror = (error) => {
+    console.log('socket error: ', error)
+}
+socket.onmessage = function (event) {
+    var data = JSON.parse(event.data);
+    console.log('socket message : ', data)
 }
 ```
 
