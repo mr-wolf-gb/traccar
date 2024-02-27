@@ -56,6 +56,7 @@ TRACCAR_TOKEN="RzBFAiEA84hXSL6uV6FQyBX0_Ds1a6NMcSC..."
 
 ```php
 // by default, it uses .env credentials else you can set it manually
+// Inject service as public variable in Controller
 public function __construct(public TraccarService $traccarService)
 {
     $this->traccarService->setEmail("user1@traccar.local");
@@ -63,7 +64,11 @@ public function __construct(public TraccarService $traccarService)
     $this->traccarService->setBaseUrl("http://localhost:8082/");
     $this->traccarService->setToken("ws://localhost:8082/api/socket");
 }
-
+// or inject directly in specific method
+public function index(TraccarService $traccarService)
+{
+    //...
+}
 ```
 
 #### Available ressources
@@ -75,7 +80,7 @@ Model : **[Server Model](src/Models/Server.php)**
 ```php
 public function index(TraccarService $traccarService)
 {
-    $serverRepo = $this->traccarService->serverRepository();
+    $serverRepo = $traccarService->serverRepository();
     // Get server information
     $srv = $serverRepo->fetchServerInformation();
     // Update server information
@@ -90,7 +95,7 @@ Model : **[Session Model](src/Models/Session.php)**
 ```php
 public function index(TraccarService $traccarService)
 {
-    $sessionRepo = $this->traccarService->sessionRepository();
+    $sessionRepo = $traccarService->sessionRepository();
     // Create new session 
     $session = $sessionRepo->createNewSession();
     // Get connected session [Require user Token in configuration]
@@ -107,7 +112,7 @@ Model : **[User Model](src/Models/User.php)**
 ```php
 public function index(TraccarService $traccarService)
 {
-    $userRepo = $this->traccarService->userRepository();
+    $userRepo = $traccarService->userRepository();
     // Get list of users
     $list = $userRepo->fetchListUsers();
     // Create new user
@@ -133,6 +138,27 @@ public function index(TraccarService $traccarService)
 }
 ```
 
+- *Group*
+
+Model : **[Group Model](src/Models/Group.php)**
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $groupRepo = $traccarService->groupRepository();
+    // Get list of groups
+    $list = $groupRepo->fetchListGroups();
+    // Create new group
+    $group = $groupRepo->createGroup(name: 'test-group');
+    // Create new group with Model : MrWolfGb\Traccar\Models\Group
+    $group = $groupRepo->createNewGroup(group: new Group(['name' => 'test']));
+    // Update group
+    $user = $groupRepo->updateGroup(group: $group);
+    // Delete group : int|Group $group
+    $groupRepo->deleteGroup(group: $group);
+}
+```
+
 - *Device*
 
 Model : **[Device Model](src/Models/Device.php)**
@@ -140,7 +166,7 @@ Model : **[Device Model](src/Models/Device.php)**
 ```php
 public function index(TraccarService $traccarService)
 {
-    $deviceRepo = $this->traccarService->deviceRepository();
+    $deviceRepo = $traccarService->deviceRepository();
     // Get list of devices
     $list = $deviceRepo->fetchListDevices();
     // Get user devices
@@ -180,7 +206,7 @@ Model : **[Geofence Model](src/Models/Geofence.php)**
 ```php
 public function index(TraccarService $traccarService)
 {
-    $geofenceRepo = $this->traccarService->geofenceRepository();
+    $geofenceRepo = $traccarService->geofenceRepository();
     // Get list of geofences
     $list = $geofenceRepo->fetchListGeofences();
     // Get geofence
@@ -199,6 +225,161 @@ public function index(TraccarService $traccarService)
     $geofence = $geofenceRepo->updateGeofence(geofence: $geofence);
     // Delete geofence : int|Geofence $geofence
     $geofenceRepo->deleteGeofence(geofence: $geofence);
+}
+```
+
+- *Notification*
+
+Model : **[Notification Model](src/Models/Notification.php)**
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $notificationRepo = $traccarService->notificationRepository();
+    // Get list of notifications
+    $list = $notificationRepo->fetchListNotifications();
+    // Create new notification
+    $notification = $notificationRepo->createNotification(
+        type: 'alarm', 
+        notificators: ['web'], 
+        always: true
+    );
+    // Create new notification with Model : MrWolfGb\Traccar\Models\Notification
+    $notification = $notificationRepo->createNewNotification(new Notification([
+        'type' => NotificationType::ALARM->value,
+        'notificator' => implode(',', [
+            NotificatorType::WEB->value, 
+            NotificatorType::COMMAND->value
+        ]),
+        'always' => false,
+        'commandId' => 1, // required if notificator is/contains command
+    ]));
+    // Update notification
+    $notification = $notificationRepo->updateNotification(notification: $notification);
+    // Delete notification : int|Notification $notification
+    $notificationRepo->deleteNotification(notification: $notification);
+    // Get notification types from Traccar server
+    $list = $notificationRepo->fetchNotificationTypes();
+    // Send test notification
+    $notificationRepo->sendTestNotification(
+        type: NotificationType::MEDIA->value, 
+        notificator: NotificatorType::WEB->value
+    );
+}
+```
+
+- *Position*
+
+Model : **[Position Model](src/Models/Position.php)**
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $positionRepo = $traccarService->positionRepository();
+    // Get list of positions
+    $list = $positionRepo->fetchListPositions(
+        from: now()->subHours(1), 
+        to: now(), 
+        id: [1, 2, 3] // optional
+    );
+    // Delete positions of device : int|Device $device
+    $positionRepo->deletePositions(
+        device: 1, 
+        from: now()->subHours(1), 
+        to: now()
+    );
+    // OsmAnd
+    $positionRepo->OsmAnd(uniqueId: "1234-d1", temperature: "21.5", abc: "def");
+}
+```
+
+- *Event*
+
+Model : **[Event Model](src/Models/Event.php)**
+
+```php
+public function index(TraccarService $traccarService)
+{
+    // Get specific event details
+    $event = $traccarService->eventRepository()->fetchEventInformation(eventID: 1);
+}
+```
+
+- *Driver*
+
+Model : **[Driver Model](src/Models/Driver.php)**
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $driverRepo = $traccarService->driverRepository();
+    // Get list of drivers
+    $list = $driverRepo->fetchListDrivers();
+    // Create new driver
+    $driver = $driverRepo->createDriver(
+        name: 'test-driver',
+        uniqueId: '123456789-d1-driver'
+    );
+    // Create new driver with Model : MrWolfGb\Traccar\Models\Driver
+    $driver = $driverRepo->createNewDriver( new Driver([
+      'name' => 'test-driver',
+      'uniqueId' => '123456789-d1-driver'
+    ]));
+    // Update driver
+    $driver = $driverRepo->updateDriver(driver: $driver);
+    // Delete driver : int|Driver $driver
+    $driverRepo->deleteDriver(driver: $driver);
+}
+```
+
+- *Report*
+
+Model : **[Report Model](src/Models/Report.php)**
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $reportRepo = $traccarService->reportRepository();
+    // Get route report for specific device
+    $list = $reportRepo->reportRoute(
+        from:  now()->subHours(value: 3),
+        to: now(),
+        deviceId: 1
+    );
+    // Get events report
+    $list = $reportRepo->reportEvents(
+        from:  now()->subHours(value: 3),
+        to: now(),
+        deviceId: 1,
+        type: 'engine' // optional, by default 'allEvents'
+    );
+    // Get summary report
+    $list = $reportRepo->reportSummary(
+        from:  now()->subHours(value: 3),
+        to: now(),
+        deviceId: [1,2],
+        //groupId: [1,2], // optional
+        //daily: true // optional
+    );
+    // Get trips report
+    $list = $reportRepo->reportTrips(
+        from:  now()->subHours(value: 3),
+        to: now(),
+        deviceId: 1
+    );
+    // Get stops report
+    $list = $reportRepo->reportStops(
+        from:  now()->subHours(value: 3),
+        to: now(),
+        deviceId: 1
+    );
+    // Get combined report
+    $list = $reportRepo->reportCombined(
+        from:  now()->subHours(value: 3),
+        to: now(),
+        deviceId: [1,2],
+        //groupId: [1,2], // optional
+    );
 }
 ```
 

@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: DriverResources.php
- * Modified : lun., 26 févr. 2024 11:34
+ * Modified : mar., 27 févr. 2024 08:21
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -17,6 +17,15 @@ use MrWolfGb\Traccar\Models\Driver;
 class DriverResources extends BaseResource
 {
 
+    /**
+     * @param bool $all
+     * @param int|null $userId
+     * @param int|null $deviceId
+     * @param int|null $groupId
+     * @param bool $refresh
+     * @return Collection
+     * @throws TraccarException
+     */
     public function fetchListDrivers(bool $all = true, ?int $userId = null, ?int $deviceId = null, ?int $groupId = null, bool $refresh = false): Collection
     {
         $query = ["all" => $all, "refresh" => $refresh];
@@ -40,6 +49,13 @@ class DriverResources extends BaseResource
         return Driver::createFromValueList($response->json());
     }
 
+    /**
+     * @param string $name
+     * @param string $uniqueId
+     * @param array $attribs
+     * @return Driver
+     * @throws TraccarException
+     */
     public function createDriver(string $name, string $uniqueId, array $attribs = []): Driver
     {
         $response = $this->service->post(
@@ -57,6 +73,11 @@ class DriverResources extends BaseResource
         return Driver::createFromValueArray($response->json());
     }
 
+    /**
+     * @param Driver $driver
+     * @return Driver
+     * @throws TraccarException
+     */
     public function createNewDriver(Driver $driver): Driver
     {
         if ($driver->uniqueId == '') {
@@ -79,6 +100,11 @@ class DriverResources extends BaseResource
         return Driver::createFromValueArray($response->json());
     }
 
+    /**
+     * @param Driver $driver
+     * @return Driver
+     * @throws TraccarException
+     */
     public function updateDriver(Driver $driver): Driver
     {
         $putData = $driver->toArray();
@@ -95,6 +121,11 @@ class DriverResources extends BaseResource
         return Driver::createFromValueArray($response->json());
     }
 
+    /**
+     * @param int|Driver $driver
+     * @return bool
+     * @throws TraccarException
+     */
     public function deleteDriver(int|Driver $driver): bool
     {
         $response = $this->service->delete(
