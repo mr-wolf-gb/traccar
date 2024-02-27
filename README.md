@@ -28,13 +28,11 @@ This package can interact with Traccar server over API
 - <a href="#credits">Credits</a>
 - <a href="#license">License</a>
 
-## :wrench: Supported Versions
+## :wrench: Required PHP version
 
-Versions will be supported for a limited amount of time.
-
-| Version | Php Version | Traccar API |
-|---------|-------------|-------------|
-| 1.0.0   | ^8.1        | 5.12        |
+| Version | Php Version |
+|---------|-------------|
+| 1.0.0   | ^8.1        |
 
 ## Installation
 
