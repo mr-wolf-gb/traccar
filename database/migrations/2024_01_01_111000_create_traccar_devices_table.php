@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: 2024_01_01_111000_create_traccar_devices_table.php
- * Modified : ven., 16 févr. 2024 14:53
+ * Modified : mar., 27 févr. 2024 09:29
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -36,7 +36,7 @@ return new class extends TraccarMigration {
             $table->string('model')->nullable();
             $table->string('contact')->nullable();
             $table->string('category')->nullable();
-            $table->json('attributes')->nullable();
+            $table->json('attribs')->nullable();
             $table->timestamps();
         });
     }

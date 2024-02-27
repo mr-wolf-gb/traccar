@@ -399,6 +399,25 @@ public function index(TraccarService $traccarService)
 }
 ```
 
+### Commands
+
+This command store devices in the local database using the published migration.
+
+```bash
+php artisan traccar:sync
+```
+
+Or
+
+```bash
+php artisan traccar:sync-devices
+```
+
+### Listen Traccar websocket with php
+
+if you want to listen Traccar websocket with php you can check example in
+file : [WsListenCommand](src/Commands/WsListenCommand.php)
+
 ## Traccar Custom Server
 
 - **[Repository link](https://github.com/mr-wolf-gb/traccar-custom)**

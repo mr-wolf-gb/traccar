@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: TraccarServiceProvider.php
- * Modified : ven., 23 févr. 2024 11:46
+ * Modified : mar., 27 févr. 2024 09:24
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -50,13 +50,9 @@ class TraccarServiceProvider extends ServiceProvider
             ], 'views');*/
 
             // Publishing assets.
-            $this->publishes([
-                __DIR__ . '/../resources/assets' => public_path('vendor/traccar'),
-            ], 'assets');
-
-            $this->publishes([
-                __DIR__ . '/../resources/assets' => public_path('vendor/traccar'),
-            ], 'assets');
+//            $this->publishes([
+//                __DIR__ . '/../resources/assets' => public_path('vendor/traccar'),
+//            ], 'assets');
 
             // Publishing the translation files.
             /*$this->publishes([
