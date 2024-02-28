@@ -13,6 +13,29 @@ namespace MrWolfGb\Traccar\Models;
 use Illuminate\Database\Eloquent\Model;
 use MrWolfGb\Traccar\Trait\ArrayToModel;
 
+/**
+ * MrWolfGb\Traccar\Models\Session
+ *
+ * @property string $name
+ * @property string $email
+ * @property string $phone
+ * @property string $password
+ * @property bool $readonly
+ * @property bool $administrator
+ * @property bool $twelveHourFormat
+ * @property bool $disabled
+ * @property bool $deviceReadonly
+ * @property bool $limitCommands
+ * @property bool $fixedEmail
+ * @property \Illuminate\Support\Carbon|null $expirationTime
+ * @property bool $poiLayer
+ * @property array|null $attribs
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Session newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Session newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Session query()
+ * @mixin \Eloquent
+ */
 class Session extends Model
 {
     use ArrayToModel;
@@ -38,7 +61,7 @@ class Session extends Model
         'limitCommands',
         'fixedEmail',
         'poiLayer',
-        'attributes',
+        'attribs',
     ];
 
     protected $casts = [
@@ -49,9 +72,8 @@ class Session extends Model
         'deviceReadonly' => 'boolean',
         'limitCommands' => 'boolean',
         'fixedEmail' => 'boolean',
-        'attributes' => 'array',
+        'expirationTime' => 'datetime',
+        'attribs' => 'array',
     ];
-
-    protected $dates = ['expirationTime'];
 
 }

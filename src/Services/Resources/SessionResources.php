@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: SessionResources.php
- * Modified : lun., 26 févr. 2024 11:35
+ * Modified : mar., 27 févr. 2024 12:17
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -10,8 +10,6 @@
 
 namespace MrWolfGb\Traccar\Services\Resources;
 
-use Illuminate\Cookie\CookieJar;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Cache;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Session;
@@ -19,11 +17,11 @@ use Symfony\Component\HttpFoundation\Cookie;
 
 class SessionResources extends BaseResource
 {
-    public function getCookies(): Application|CookieJar|Cookie|\Illuminate\Contracts\Foundation\Application
+    public function getCookies(): Cookie
     {
         $this->checkSessionID();
-        $session = Cache::get($this->service->getCacheKey())["session"];
-        return cookie(
+        $session = $this->getSessionCache();
+        return Cookie::create(
             name: $session["Name"],
             value: $session["Value"],
             domain: $session["Domain"],
@@ -33,7 +31,7 @@ class SessionResources extends BaseResource
 
     private function checkSessionID(): void
     {
-        $session = Cache::get($this->service->getCacheKey())["session"];
+        $session = $this->getSessionCache();
         $response = $this->service->get(
             request: $this->service->withBaseUrl(),
             url: 'session/check-sid',
@@ -67,7 +65,7 @@ class SessionResources extends BaseResource
             return [
                 'data' => $response->json(),
                 'token' => $response->json("token"),
-                'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null
+                'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null //@phpstan-ignore-line
             ];
         }));
     }
@@ -89,7 +87,7 @@ class SessionResources extends BaseResource
             return [
                 'data' => $response->json(),
                 'token' => $response->json("token"),
-                'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null
+                'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null //@phpstan-ignore-line
             ];
         }));
     }

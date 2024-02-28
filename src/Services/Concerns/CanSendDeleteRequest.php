@@ -16,7 +16,13 @@ use Illuminate\Http\Client\Response;
 
 trait CanSendDeleteRequest
 {
-
+    /**
+     * @param PendingRequest $request
+     * @param string $url
+     * @param array $payload
+     * @return PromiseInterface|Response
+     * @phpstan-ignore-next-line
+     */
     public function delete(PendingRequest $request, string $url, array $payload = []): PromiseInterface|Response
     {
         return $request->withoutVerifying()->delete(

@@ -13,6 +13,14 @@ namespace MrWolfGb\Traccar\Models;
 use Illuminate\Database\Eloquent\Model;
 use MrWolfGb\Traccar\Trait\ArrayToModel;
 
+/**
+ * MrWolfGb\Traccar\Models\Position
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Position newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Position newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Position query()
+ * @mixin \Eloquent
+ */
 class Position extends Model
 {
     use ArrayToModel;

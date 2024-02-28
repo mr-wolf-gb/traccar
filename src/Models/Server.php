@@ -13,6 +13,14 @@ namespace MrWolfGb\Traccar\Models;
 use Illuminate\Database\Eloquent\Model;
 use MrWolfGb\Traccar\Trait\ArrayToModel;
 
+/**
+ * MrWolfGb\Traccar\Models\Server
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Server newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Server newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Server query()
+ * @mixin \Eloquent
+ */
 class Server extends Model
 {
     use ArrayToModel;

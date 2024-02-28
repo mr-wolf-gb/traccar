@@ -1,0 +1,16 @@
+includes:
+    - ./vendor/larastan/larastan/extension.neon
+parameters:
+    paths:
+        - src
+    level: 9
+    treatPhpDocTypesAsCertain: false
+    checkGenericClassInNonGenericObjectType: false
+    ignoreErrors:
+        - "#Method [a-zA-Z0-9\\_\\\\:\\(\\)]+ has parameter \\$[a-zA-Z0-9_]+ with no value type specified in iterable type array#"
+        - "#Method [a-zA-Z0-9\\_\\\\:\\(\\)]+ return type has no value type specified in iterable type array#"
+        - '#Call to an undefined method [a-zA-Z0-9\\_\\\\:\\(\\)]+#'
+        - '#Call to protected static method [a-zA-Z0-9\\_\\\\:\\(\\)]+ of class [a-zA-Z0-9\\_\\\\:\\(\\)]+#'
+        - '#Call to function [a-zA-Z0-9\\_\\\\:\\(\\)]+ with int|null will always evaluate to false.#'
+        - '#Unsafe usage of new static#'
+    excludePaths:

@@ -51,7 +51,8 @@ class TraccarMigration extends Migration
      */
     public function getConnection(): ?string
     {
-        return Config::get('traccar.database.connection');
+        $res = Config::get('traccar.database.connection');
+        return is_string($res) ? $res : null;
     }
 
 }

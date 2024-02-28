@@ -13,6 +13,17 @@ namespace MrWolfGb\Traccar\Models;
 use Illuminate\Database\Eloquent\Model;
 use MrWolfGb\Traccar\Trait\ArrayToModel;
 
+/**
+ * MrWolfGb\Traccar\Models\Driver
+ *
+ * @property string $name
+ * @property string $uniqueId
+ * @property array|null $attribs
+ * @method static \Illuminate\Database\Eloquent\Builder|Driver newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Driver newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Driver query()
+ * @mixin \Eloquent
+ */
 class Driver extends Model
 {
     use ArrayToModel;

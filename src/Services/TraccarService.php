@@ -49,7 +49,7 @@ class TraccarService
         private string  $email,
         private string  $password,
         private ?string $token,
-        private array   $headers)
+        private array   $headers = array())
     {
         $this->cacheKey = Str::slug($email, '_') . '_traccar_auth';
         if (!Cache::has($this->cacheKey) && !empty($this->baseUrl) && !empty($this->email) && !empty($this->password)) {

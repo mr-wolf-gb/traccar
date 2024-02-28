@@ -39,7 +39,9 @@ trait BuildBaseRequest
     public function buildRequestWithCookies(): PendingRequest
     {
         if (!Cache::has($this->getCacheKey())) throw new TraccarException("No cookies found for this session.");
-        $session = Cache::get($this->getCacheKey())["session"];
+        $cachedSession = Cache::get($this->getCacheKey());
+        if (!is_array($cachedSession)) throw new TraccarException("No cookies found for this session.");
+        $session = $cachedSession["session"];
         return $this->withBaseUrl()->withCookies([$session["Name"] => $session["Value"]], $session["Domain"]);
     }
 

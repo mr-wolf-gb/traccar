@@ -78,6 +78,7 @@ class PositionResources extends BaseResource
      * @return void
      * @throws TraccarException
      * @link https://www.traccar.org/osmand/
+     * @phpstan-ignore-next-line
      */
     public function OsmAnd(string $uniqueId, bool $valid = true, string $timestamp = '',
                            float  $lat = 0.0, float $lon = 0.0, string $location = null, string $cell = null,

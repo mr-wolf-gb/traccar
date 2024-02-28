@@ -16,6 +16,13 @@ use Illuminate\Http\Client\Response;
 
 trait CanSendGetRequest
 {
+    /**
+     * @param PendingRequest $request
+     * @param string $url
+     * @param array|string|null $query
+     * @return PromiseInterface|Response
+     * @phpstan-ignore-next-line
+     */
     public function get(PendingRequest $request, string $url, array|string|null $query = []): PromiseInterface|Response
     {
         return $request->withoutVerifying()->get(

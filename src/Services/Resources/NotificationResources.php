@@ -104,8 +104,8 @@ class NotificationResources extends BaseResource
         if (empty($notification->notificators)) {
             throw new TraccarException("Notificators cannot be empty !");
         }
-        if (in_array(NotificatorType::COMMAND->value, $notification->notificators, true)) {
-            if (empty($commandId)) {
+        if (in_array(NotificatorType::COMMAND->value, explode(',', $notification->notificators), true)) {
+            if (empty($notification->commandId)) {
                 throw new TraccarException("Command ID required !");
             }
         }
@@ -174,7 +174,8 @@ class NotificationResources extends BaseResource
         if (!$response->ok()) {
             throw new TraccarException($response->toException());
         }
-        return $response->json();
+        $res = $response->json();
+        return is_array($res) ? $res : [];
     }
 
     /**

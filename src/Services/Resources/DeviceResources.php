@@ -26,7 +26,8 @@ class DeviceResources extends BaseResource
      */
     public function getDeviceById(int $deviceId): null|Device
     {
-        return $this->fetchListDevices(all: false, id: $deviceId)->first();
+        $d = $this->fetchListDevices(all: false, id: $deviceId)->first();
+        return $d instanceof Device ? $d : null;
     }
 
     /**
@@ -84,7 +85,8 @@ class DeviceResources extends BaseResource
      */
     public function getDeviceByUniqueId(string $uniqueId): null|Device
     {
-        return $this->fetchListDevices(all: false, uniqueId: $uniqueId)->first();
+        $d = $this->fetchListDevices(all: false, uniqueId: $uniqueId)->first();
+        return $d instanceof Device ? $d : null;
     }
 
     /**

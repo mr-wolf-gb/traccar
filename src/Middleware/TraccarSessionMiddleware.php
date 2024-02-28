@@ -2,7 +2,7 @@
 /*
  * Author: WOLF
  * Name: TraccarSessionMiddleware.php
- * Modified : lun., 19 févr. 2024 08:17
+ * Modified : mar., 27 févr. 2024 12:23
  * Description: ...
  *
  * Copyright 2024 -[MR.WOLF]-[WS]-
@@ -25,9 +25,8 @@ final class TraccarSessionMiddleware
 
     public function handle(Request $request, Closure $next): Response
     {
-        if ($cookies = $this->traccarService->sessionRepository()->getCookies()) {
-            View::share('traccarSessionId', explode('.', $cookies->getValue())[0]);
-        }
+        $cookies = $this->traccarService->sessionRepository()->getCookies();
+        View::share('traccarSessionId', explode('.', $cookies->getValue() ?? '')[0]);
         return $next($request);
     }
 }

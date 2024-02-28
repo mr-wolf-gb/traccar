@@ -16,6 +16,11 @@ use Illuminate\Http\Client\Response;
 
 trait CanSendPostRequest
 {
+    /**
+     * @param PendingRequest $request
+     * @param string $url
+     * @return PromiseInterface|Response
+     */
     public function session(PendingRequest $request, string $url): PromiseInterface|Response
     {
         return $request->withoutVerifying()->asForm()
@@ -28,6 +33,13 @@ trait CanSendPostRequest
             );
     }
 
+    /**
+     * @param PendingRequest $request
+     * @param string $url
+     * @param array $payload
+     * @return PromiseInterface|Response
+     * @phpstan-ignore-next-line
+     */
     public function post(PendingRequest $request, string $url, array $payload = []): PromiseInterface|Response
     {
         return $request->withoutVerifying()->post(

@@ -17,6 +17,13 @@ use Illuminate\Http\Client\Response;
 trait CanSendPutRequest
 {
 
+    /**
+     * @param PendingRequest $request
+     * @param string $url
+     * @param array $payload
+     * @return PromiseInterface|Response
+     * @phpstan-ignore-next-line
+     */
     public function put(PendingRequest $request, string $url, array $payload = []): PromiseInterface|Response
     {
         return $request->withoutVerifying()->put(

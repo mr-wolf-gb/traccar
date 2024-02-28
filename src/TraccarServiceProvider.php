@@ -33,7 +33,7 @@ class TraccarServiceProvider extends ServiceProvider
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
         $this->app->singleton(TraccarSessionMiddleware::class, function (Application $app) {
-            return new TraccarSessionMiddleware(app(TraccarService::class)); // @phpstan-ignore-line
+            return new TraccarSessionMiddleware(app(TraccarService::class));
         });
         /** @var Router $router */
         $router = $this->app->make('router');
@@ -67,7 +67,7 @@ class TraccarServiceProvider extends ServiceProvider
 
             AboutCommand::add('Traccar', fn() => [
                 'Version' => InstalledVersions::getPrettyVersion('mr-wolf-gb/traccar'),
-                'Base Url' => AboutCommand::format(config('traccar.base_url'), console: fn($value) => "<fg=yellow;options=bold>$value</>"),
+                'Base Url' => AboutCommand::format(config('traccar.base_url'), console: fn($value) => "<fg=yellow;options=bold>$value</>"), // @phpstan-ignore-line
                 'Sync Devices' => AboutCommand::format(config('traccar.devices.store_in_database'), console: fn($value) => $value ? '<fg=yellow;options=bold>ENABLED</>' : 'OFF'),
             ]);
 
@@ -90,10 +90,10 @@ class TraccarServiceProvider extends ServiceProvider
         $this->app->singleton(
             abstract: TraccarService::class,
             concrete: fn() => new TraccarService(
-                baseUrl: config('traccar.base_url'),
-                email: config('traccar.auth.username'),
-                password: config('traccar.auth.password'),
-                token: config('traccar.auth.token'),
+                baseUrl: config('traccar.base_url'), // @phpstan-ignore-line
+                email: config('traccar.auth.username'), // @phpstan-ignore-line
+                password: config('traccar.auth.password'), // @phpstan-ignore-line
+                token: config('traccar.auth.token'), // @phpstan-ignore-line
                 headers: [
                     'Accept' => 'application/json'
                 ]
