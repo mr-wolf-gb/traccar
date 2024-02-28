@@ -3,6 +3,9 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mr-wolf-gb/traccar.svg?style=flat-square)](https://packagist.org/packages/mr-wolf-gb/traccar)
 [![Total Downloads](https://img.shields.io/packagist/dt/mr-wolf-gb/traccar.svg?style=flat-square)](https://packagist.org/packages/mr-wolf-gb/traccar)
 ![GitHub Actions](https://github.com/mr-wolf-gb/traccar/actions/workflows/main.yml/badge.svg)
+[![Latest Unstable Version](http://poser.pugx.org/mr-wolf-gb/traccar/v/unstable?style=flat-square)](https://packagist.org/packages/mr-wolf-gb/traccar) 
+[![License](http://poser.pugx.org/mr-wolf-gb/traccar/license?style=flat-square)](https://packagist.org/packages/mr-wolf-gb/traccar) 
+[![PHP Version Require](http://poser.pugx.org/mr-wolf-gb/traccar/require/php?style=flat-square)](https://packagist.org/packages/mr-wolf-gb/traccar)
 
 This Laravel package serves as a seamless integration tool, empowering developers to effortlessly interact with Traccar
 servers through their robust API. Traccar, a powerful GPS tracking platform, becomes more accessible than ever as this
