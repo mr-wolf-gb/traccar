@@ -21,7 +21,7 @@ class TraccarMigration extends Migration
     /**
      * Determine if the migration should run.
      */
-    protected function shouldRun(): bool
+    public function shouldRun(): bool
     {
         if (in_array($this->driver(), ['mysql', 'pgsql', 'sqlite'])) {
             return true;
