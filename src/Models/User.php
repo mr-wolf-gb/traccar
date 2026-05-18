@@ -39,6 +39,7 @@ class User extends Model
     use ArrayToModel;
 
     protected $fillable = [
+        'id',
         'name',
         'email',
         'phone',
@@ -63,6 +64,7 @@ class User extends Model
     ];
 
     protected $casts = [
+        'id' => 'integer',
         'readonly' => 'boolean',
         'administrator' => 'boolean',
         'latitude' => 'float',
@@ -71,6 +73,8 @@ class User extends Model
         'twelveHourFormat' => 'boolean',
         'disabled' => 'boolean',
         'expirationTime' => 'datetime',
+        'deviceLimit' => 'integer',
+        'userLimit' => 'integer',
         'deviceReadonly' => 'boolean',
         'limitCommands' => 'boolean',
         'fixedEmail' => 'boolean',

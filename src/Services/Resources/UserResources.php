@@ -29,7 +29,7 @@ class UserResources extends BaseResource
             $query["userId"] = $userId;
         }
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'users',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -77,7 +77,7 @@ class UserResources extends BaseResource
             throw new TraccarException("Invalid email address !");
         }
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'users',
             payload: [
                 "name" => $name, "email" => $email, "password" => $password,
@@ -116,7 +116,7 @@ class UserResources extends BaseResource
         $postData["attributes"] = empty($postData["attribs"]) ? null : $postData["attribs"];
         unset($postData["attribs"]);
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'users',
             payload: $postData
         );
@@ -138,7 +138,7 @@ class UserResources extends BaseResource
         $putData["attributes"] = empty($putData["attribs"]) ? null : $putData["attribs"];
         unset($putData["attribs"]);
         $response = $this->service->put(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'users/' . $user->id,
             payload: $putData
         );
@@ -156,13 +156,26 @@ class UserResources extends BaseResource
     public function deleteUser(int|User $user): bool
     {
         $response = $this->service->delete(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'users/' . ($user instanceof User ? $user->id : $user)
         );
         if (!$response->noContent()) {
             throw new TraccarException($response->toException());
         }
         return true;
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function generateTotpSecret(): string
+    {
+        $response = $this->ensureOk($this->service->post(
+            request: $this->service->withBaseUrl(),
+            url: 'users/totp'
+        ));
+
+        return $response->body();
     }
 
     /**
@@ -176,7 +189,7 @@ class UserResources extends BaseResource
         $deviceId = $device instanceof Device ? $device->id : $device;
         $userId = $user instanceof User ? $user->id : $user;
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: "permissions",
             payload: [
                 'deviceId' => $deviceId,
@@ -200,7 +213,7 @@ class UserResources extends BaseResource
         $deviceId = $device instanceof Device ? $device->id : $device;
         $userId = $user instanceof User ? $user->id : $user;
         $response = $this->service->delete(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: "permissions",
             payload: [
                 'deviceId' => $deviceId,

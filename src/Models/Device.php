@@ -59,6 +59,7 @@ class Device extends Model
 
     protected $table = "traccar_devices";
     protected $fillable = [
+        'id',
         'name',
         'uniqueId',
         'status',
@@ -74,8 +75,11 @@ class Device extends Model
     ];
 
     protected $casts = [
+        'id' => 'integer',
         'disabled' => 'boolean',
         'lastUpdate' => 'datetime', // ISO 8601 format : Y-m-d\TH:i:s\Z
+        'positionId' => 'integer',
+        'groupId' => 'integer',
         'attribs' => 'array',
     ];
 

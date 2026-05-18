@@ -2,6 +2,29 @@
 
 All notable changes to `traccar` will be documented in this file
 
+## 1.1.0 - 2026-05-18
+
+### Added
+
+- Added Bearer token API authentication support from the Traccar OpenAPI security schema.
+- Added `TRACCAR_AUTH_METHOD` with `auto`, `token`, and `basic` modes.
+- Added missing repositories for commands, orders, permissions, sharing, statistics, calendars, computed attributes, and maintenance.
+- Added missing endpoint helpers for device images, position exports, server utilities, session tokens, TOTP, report geofences, and custom notifications.
+- Added models for the newly supported API schemas, including commands, orders, permissions, calendars, computed attributes, maintenance, statistics, notification messages, and device accumulators.
+
+### Changed
+
+- Authorized requests now use `TRACCAR_TOKEN` as a Bearer token by default when configured, unless Basic authentication is forced.
+- Existing resource methods now continue to work with Basic auth but transparently use token auth in `auto` mode.
+- Report route responses now map to `Position` models, and report event responses now map to `Event` models.
+- Updated README examples to document the current authentication behavior and all exposed repositories.
+
+### Fixed
+
+- Fixed model factory visibility so resource classes can create models from API responses reliably.
+- Fixed `/notifications/test` usage to match the OpenAPI path.
+- Fixed PHPStan configuration and type issues introduced by the new resources.
+
 ## 1.0.1 - 2025-07-21
 
 fix

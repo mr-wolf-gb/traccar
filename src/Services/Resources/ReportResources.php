@@ -13,6 +13,8 @@ namespace MrWolfGb\Traccar\Services\Resources;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
+use MrWolfGb\Traccar\Models\Event;
+use MrWolfGb\Traccar\Models\Position;
 use MrWolfGb\Traccar\Models\Report;
 
 /**
@@ -31,7 +33,7 @@ class ReportResources extends BaseResource
     {
         $query = $this->getReportData($deviceId, $from, $to);
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'reports/route',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -87,7 +89,7 @@ class ReportResources extends BaseResource
             }
         }
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'reports/events',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -118,7 +120,7 @@ class ReportResources extends BaseResource
         }
         $query["daily"] = $daily ? 'true' : 'false';
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'reports/summary',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -139,7 +141,7 @@ class ReportResources extends BaseResource
     {
         $query = $this->getReportData($deviceId, $from, $to);
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'reports/trips',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -160,7 +162,7 @@ class ReportResources extends BaseResource
     {
         $query = $this->getReportData($deviceId, $from, $to);
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'reports/stops',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -189,14 +191,38 @@ class ReportResources extends BaseResource
             }
         }
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'reports/combined',
             query: urldecode(http_build_query($query, '', '&'))
         );
         if (!$response->ok()) {
             throw new TraccarException($response->toException());
         }
-        return Report::createFromValueList($response->json());
+        return Position::createFromValueList($response->json());
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function reportGeofences(string $from, string $to, null|array|int $deviceId = null, null|array|int $groupId = null): Collection
+    {
+        $query = $this->getReportData($deviceId, $from, $to);
+        if (!empty($groupId)) {
+            if (is_array($groupId)) {
+                $query["groupId"] = $this->prepareMultipleQuery('groupId', $groupId);
+            } else {
+                $query["groupId"] = $groupId;
+            }
+        }
+        $response = $this->service->get(
+            request: $this->service->buildRequestWithConfiguredAuth(),
+            url: 'reports/geofences',
+            query: urldecode(http_build_query($query, '', '&'))
+        );
+        if (!$response->ok()) {
+            throw new TraccarException($response->toException());
+        }
+        return Event::createFromValueList($response->json());
     }
 
 }

@@ -10,6 +10,7 @@
 
 namespace MrWolfGb\Traccar\Services\Resources;
 
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Session;
@@ -58,38 +59,56 @@ class SessionResources extends BaseResource
             request: $this->service->withBaseUrl(),
             url: 'session',
         );
-        if (!$response->ok()) {
+        if (!$response instanceof Response || !$response->ok()) {
             throw new TraccarException($response->toException());
         }
-        return Session::createFromValueArray(Cache::rememberForever($this->service->getCacheKey(), function () use ($response) {
-            return [
-                'data' => $response->json(),
-                'token' => $response->json("token"),
-                'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null //@phpstan-ignore-line
-            ];
-        }));
+        $this->cacheSessionResponse($response);
+
+        return Session::createFromValueArray($response->json());
     }
 
     /**
      * @return Session
      * @throws TraccarException
      */
-    public function fetchSessionInformation(): Session
+    public function fetchSessionInformation(?string $token = null): Session
     {
-        $response = $this->service->get(
-            request: $this->service->buildRequestWithAccessToken(),
-            url: 'session'
-        );
-        if (!$response->ok()) {
-            throw new TraccarException($response->body());
+        return $this->fetchSessionInformationWithToken($token);
+    }
+
+    /**
+     * @return Session
+     * @throws TraccarException
+     */
+    public function fetchSessionInformationWithToken(?string $token = null): Session
+    {
+        $token ??= $this->service->getToken();
+        if (empty($token)) {
+            throw new TraccarException("No session token provided.");
         }
-        return Session::createFromValueArray(Cache::rememberForever($this->service->getCacheKey(), function () use ($response) {
-            return [
-                'data' => $response->json(),
-                'token' => $response->json("token"),
-                'session' => $response->cookies()->getCookieByName('JSESSIONID')->toArray() ?? null //@phpstan-ignore-line
-            ];
-        }));
+
+        $response = $this->service->get(
+            request: $this->service->withBaseUrl(),
+            url: 'session',
+            query: ['token' => $token]
+        );
+        if (!$response instanceof Response || !$response->ok()) {
+            throw new TraccarException($response instanceof Response ? $response->body() : 'Unexpected response.');
+        }
+        $this->cacheSessionResponse($response, $token);
+
+        return Session::createFromValueArray($response->json());
+    }
+
+    /**
+     * Alias for the credential-based session endpoint, POST /session.
+     *
+     * @return Session
+     * @throws TraccarException
+     */
+    public function fetchSessionInformationWithCredentials(): Session
+    {
+        return $this->createNewSession();
     }
 
     /**
@@ -106,5 +125,83 @@ class SessionResources extends BaseResource
         }
         Cache::forget($this->service->getCacheKey());
         return true;
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function generateSessionToken(?string $expiration = null): string
+    {
+        $response = $this->service->post(
+            request: $this->service->buildAuthorizedRequest()->asForm(),
+            url: 'session/token',
+            payload: array_filter(compact('expiration'), fn($value) => $value !== null)
+        );
+        if (!$response->ok()) {
+            throw new TraccarException($response->toException());
+        }
+
+        return $response->body();
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function revokeSessionToken(string $token): bool
+    {
+        $response = $this->service->post(
+            request: $this->service->buildAuthorizedRequest()->asForm(),
+            url: 'session/token/revoke',
+            payload: compact('token')
+        );
+        if (!$response->noContent()) {
+            throw new TraccarException($response->toException());
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function fetchOpenIdAuth(): string
+    {
+        $response = $this->service->get(
+            request: $this->service->buildAuthorizedRequest(),
+            url: 'session/openid/auth'
+        );
+        if (!$response->ok()) {
+            throw new TraccarException($response->toException());
+        }
+
+        return $response->body();
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function openIdCallback(array $query = []): string
+    {
+        $response = $this->service->get(
+            request: $this->service->buildAuthorizedRequest(),
+            url: 'session/openid/callback',
+            query: $this->query($query)
+        );
+        if (!$response->ok()) {
+            throw new TraccarException($response->toException());
+        }
+
+        return $response->body();
+    }
+
+    private function cacheSessionResponse(Response $response, ?string $token = null): void
+    {
+        $sessionCookie = $response->cookies()->getCookieByName('JSESSIONID');
+
+        Cache::forever($this->service->getCacheKey(), [
+            'data' => $response->json(),
+            'token' => $token ?? $response->json("token") ?? $this->service->getToken(),
+            'session' => $sessionCookie?->toArray(),
+        ]);
     }
 }

@@ -31,6 +31,7 @@ class Geofence extends Model
     use ArrayToModel;
 
     protected $fillable = [
+        'id',
         'name',
         'description',
         'area',
@@ -39,6 +40,8 @@ class Geofence extends Model
     ];
 
     protected $casts = [
+        'id' => 'integer',
+        'calendarId' => 'integer',
         'attribs' => 'array',
     ];
 

@@ -96,7 +96,8 @@ class TraccarServiceProvider extends ServiceProvider
                 token: config('traccar.auth.token'), // @phpstan-ignore-line
                 headers: [
                     'Accept' => 'application/json'
-                ]
+                ],
+                authMethod: config('traccar.auth.method', 'auto'), // @phpstan-ignore-line
             )
         );
     }

@@ -47,7 +47,7 @@ class PositionResources extends BaseResource
         $query["from"] = $from->format('Y-m-d\TH:i:s\Z');
         $query["to"] = $to->format('Y-m-d\TH:i:s\Z');
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'positions',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -121,12 +121,58 @@ class PositionResources extends BaseResource
         $query["from"] = $from->format('Y-m-d\TH:i:s\Z');
         $query["to"] = $to->format('Y-m-d\TH:i:s\Z');
         $response = $this->service->delete(
-            request: $this->service->buildRequestWithBasicAuth()->withQueryParameters($query),
+            request: $this->service->buildRequestWithConfiguredAuth()->withQueryParameters($query),
             url: 'positions'
         );
         if (!$response->noContent()) {
             throw new TraccarException($response->toException());
         }
         return true;
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function deletePosition(int $id): bool
+    {
+        return $this->deleteResource("positions/$id");
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function exportPositionsKml(array $query): string
+    {
+        return $this->exportPositions('positions/kml', $query);
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function exportPositionsCsv(array $query): string
+    {
+        return $this->exportPositions('positions/csv', $query);
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function exportPositionsGpx(array $query): string
+    {
+        return $this->exportPositions('positions/gpx', $query);
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    private function exportPositions(string $url, array $query): string
+    {
+        $response = $this->ensureOk($this->service->get(
+            request: $this->service->buildAuthorizedRequest(),
+            url: $url,
+            query: $this->query($query)
+        ));
+
+        return $response->body();
     }
 }

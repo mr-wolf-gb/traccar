@@ -10,11 +10,25 @@
 
 namespace MrWolfGb\Traccar\Services\Resources;
 
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Server;
 
 class ServerResources extends BaseResource
 {
+    /**
+     * @throws TraccarException
+     */
+    public function checkHealth(): string
+    {
+        $response = $this->ensureOk($this->service->get(
+            request: $this->service->withBaseUrl(),
+            url: 'health'
+        ));
+
+        return $response->body();
+    }
 
     /**
      * @throws TraccarException
@@ -22,7 +36,7 @@ class ServerResources extends BaseResource
     public function fetchServerInformation(): Server
     {
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'server'
         );
         if (!$response->ok()) {
@@ -39,18 +53,12 @@ class ServerResources extends BaseResource
     public function updateServerInformation(Server $server): Server
     {
         $putData = $server->only('id', 'registration', 'readonly', 'deviceReadonly', 'limitCommands', 'map',
-            'bingKey', 'mapUrl', 'poiLayer', 'latitude', 'longitude', 'zoom', 'twelveHourFormat', 'version', 'forceSettings',
+            'bingKey', 'mapUrl', 'poiLayer', 'announcement', 'latitude', 'longitude', 'zoom', 'twelveHourFormat', 'version', 'forceSettings',
             'coordinateFormat', 'openIdEnabled', 'openIdForce', 'attribs');
         $putData["attributes"] = empty($putData["attribs"]) ? null : $putData["attribs"];
         unset($putData["attribs"]);
-        $putData = array_map(function ($value) {
-            if (is_bool($value)) {
-                return $value ? 'true' : 'false';
-            }
-            return $value;
-        }, $putData);
         $response = $this->service->put(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'server',
             payload: $putData
         );
@@ -58,5 +66,79 @@ class ServerResources extends BaseResource
             throw new TraccarException($response->toException());
         }
         return Server::createFromValueArray($response->json());
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function reverseGeocode(float $latitude, float $longitude): string
+    {
+        $response = $this->ensureOk($this->service->get(
+            request: $this->service->buildAuthorizedRequest(),
+            url: 'server/geocode',
+            query: compact('latitude', 'longitude')
+        ));
+
+        return $response->body();
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function fetchTimezones(): Collection
+    {
+        return $this->getCollection('server/timezones');
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function uploadServerFile(string $path, string $localFile): bool
+    {
+        $response = $this->service->buildAuthorizedRequest()
+            ->withoutVerifying()
+            ->withBody(File::get($localFile), 'application/octet-stream')
+            ->post('server/file/' . ltrim($path, '/'));
+
+        return $this->ensureNoContent($response);
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function triggerGarbageCollection(): bool
+    {
+        $response = $this->service->get(
+            request: $this->service->buildAuthorizedRequest(),
+            url: 'server/gc'
+        );
+
+        return $this->ensureNoContent($response);
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function fetchCacheDiagnostics(): string
+    {
+        $response = $this->ensureOk($this->service->get(
+            request: $this->service->buildAuthorizedRequest(),
+            url: 'server/cache'
+        ));
+
+        return $response->body();
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function rebootServer(): bool
+    {
+        $response = $this->service->post(
+            request: $this->service->buildAuthorizedRequest(),
+            url: 'server/reboot'
+        );
+
+        return $this->ensureNoContent($response);
     }
 }

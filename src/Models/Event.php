@@ -32,6 +32,7 @@ class Event extends Model
     use ArrayToModel;
 
     protected $fillable = [
+        'id',
         'type',
         'eventTime',
         'deviceId',
@@ -42,7 +43,12 @@ class Event extends Model
     ];
 
     protected $casts = [
+        'id' => 'integer',
         'eventTime' => 'datetime', // ISO 8601 format : Y-m-d\TH:i:s\Z
+        'deviceId' => 'integer',
+        'positionId' => 'integer',
+        'geofenceId' => 'integer',
+        'maintenanceId' => 'integer',
         'attribs' => 'array',
     ];
 

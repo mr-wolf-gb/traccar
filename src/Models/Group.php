@@ -29,12 +29,15 @@ class Group extends Model
     use ArrayToModel;
 
     protected $fillable = [
+        'id',
         'name',
         'groupId',
         'attribs',
     ];
 
     protected $casts = [
+        'id' => 'integer',
+        'groupId' => 'integer',
         'attribs' => 'array',
     ];
 

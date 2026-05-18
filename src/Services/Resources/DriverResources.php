@@ -39,7 +39,7 @@ class DriverResources extends BaseResource
             $query["groupId"] = $groupId;
         }
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'drivers',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -59,7 +59,7 @@ class DriverResources extends BaseResource
     public function createDriver(string $name, string $uniqueId, array $attribs = []): Driver
     {
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'drivers',
             payload: [
                 "name" => $name,
@@ -90,7 +90,7 @@ class DriverResources extends BaseResource
         $postData["attributes"] = empty($postData["attribs"]) ? null : $postData["attribs"];
         unset($postData["attribs"]);
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'drivers',
             payload: $postData
         );
@@ -111,7 +111,7 @@ class DriverResources extends BaseResource
         $putData["attributes"] = empty($putData["attribs"]) ? null : $putData["attribs"];
         unset($putData["attribs"]);
         $response = $this->service->put(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'drivers/' . $driver->id,
             payload: $putData
         );
@@ -129,7 +129,7 @@ class DriverResources extends BaseResource
     public function deleteDriver(int|Driver $driver): bool
     {
         $response = $this->service->delete(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'drivers/' . ($driver instanceof Driver ? $driver->id : $driver)
         );
         if (!$response->noContent()) {

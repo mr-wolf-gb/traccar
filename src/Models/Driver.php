@@ -29,12 +29,14 @@ class Driver extends Model
     use ArrayToModel;
 
     protected $fillable = [
+        'id',
         'name',
         'uniqueId',
         'attribs',
     ];
 
     protected $casts = [
+        'id' => 'integer',
         'attribs' => 'array',
     ];
 

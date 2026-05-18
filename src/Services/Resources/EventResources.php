@@ -24,7 +24,7 @@ class EventResources extends BaseResource
     public function fetchEventInformation(int $eventID): Event
     {
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'events/' . $eventID,
         );
         if (!$response->ok()) {

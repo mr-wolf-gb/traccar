@@ -32,7 +32,9 @@ class Notification extends Model
     use ArrayToModel;
 
     protected $fillable = [
+        'id',
         'type',
+        'description',
         'notificators',
         'always',
         'commandId',
@@ -41,6 +43,10 @@ class Notification extends Model
     ];
 
     protected $casts = [
+        'id' => 'integer',
+        'always' => 'boolean',
+        'commandId' => 'integer',
+        'calendarId' => 'integer',
         'attribs' => 'array',
     ];
 

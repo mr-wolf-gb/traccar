@@ -11,6 +11,7 @@
 namespace MrWolfGb\Traccar\Services\Resources;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Device;
 use MrWolfGb\Traccar\Models\Geofence;
@@ -58,7 +59,7 @@ class DeviceResources extends BaseResource
             }
         }
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'devices',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -113,7 +114,7 @@ class DeviceResources extends BaseResource
     ): Device
     {
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'devices',
             payload: [
                 'id' => $id,
@@ -154,7 +155,7 @@ class DeviceResources extends BaseResource
         $postData["attributes"] = empty($postData["attribs"]) ? null : $postData["attribs"];
         unset($postData["attribs"]);
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'devices',
             payload: $postData
         );
@@ -175,7 +176,7 @@ class DeviceResources extends BaseResource
         $putData["attributes"] = empty($putData["attribs"]) ? null : $putData["attribs"];
         unset($putData["attribs"]);
         $response = $this->service->put(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'devices/' . $device->id,
             payload: $putData
         );
@@ -193,13 +194,28 @@ class DeviceResources extends BaseResource
     public function deleteDevice(int|Device $device): bool
     {
         $response = $this->service->delete(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'devices/' . ($device instanceof Device ? $device->id : $device)
         );
         if (!$response->noContent()) {
             throw new TraccarException($response->toException());
         }
         return true;
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function uploadDeviceImage(int|Device $device, string $path): string
+    {
+        $deviceId = $device instanceof Device ? $device->id : $device;
+        $mimeType = File::mimeType($path) ?: 'application/octet-stream';
+        $response = $this->ensureOk($this->service->buildAuthorizedRequest()
+            ->withoutVerifying()
+            ->withBody(File::get($path), $mimeType)
+            ->post("devices/$deviceId/image"));
+
+        return $response->body();
     }
 
     /**
@@ -213,7 +229,7 @@ class DeviceResources extends BaseResource
     {
         $deviceId = $device instanceof Device ? $device->id : $device;
         $response = $this->service->put(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: "devices/$deviceId/accumulators",
             payload: [
                 'deviceId' => $deviceId,
@@ -238,7 +254,7 @@ class DeviceResources extends BaseResource
         $deviceId = $device instanceof Device ? $device->id : $device;
         $geofenceId = $geofence instanceof Geofence ? $geofence->id : $geofence;
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: "permissions",
             payload: [
                 'deviceId' => $deviceId,
@@ -262,7 +278,7 @@ class DeviceResources extends BaseResource
         $deviceId = $device instanceof Device ? $device->id : $device;
         $geofenceId = $geofence instanceof Geofence ? $geofence->id : $geofence;
         $response = $this->service->delete(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: "permissions",
             payload: [
                 'deviceId' => $deviceId,
@@ -286,7 +302,7 @@ class DeviceResources extends BaseResource
         $deviceId = $device instanceof Device ? $device->id : $device;
         $notificationId = $notification instanceof Notification ? $notification->id : $notification;
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: "permissions",
             payload: [
                 'deviceId' => $deviceId,
@@ -310,7 +326,7 @@ class DeviceResources extends BaseResource
         $deviceId = $device instanceof Device ? $device->id : $device;
         $notificationId = $notification instanceof Notification ? $notification->id : $notification;
         $response = $this->service->delete(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: "permissions",
             payload: [
                 'deviceId' => $deviceId,

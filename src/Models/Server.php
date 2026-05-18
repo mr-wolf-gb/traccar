@@ -35,6 +35,7 @@ class Server extends Model
         'bingKey',
         'mapUrl',
         'poiLayer',
+        'announcement',
         'latitude',
         'longitude',
         'zoom',
@@ -48,6 +49,7 @@ class Server extends Model
     ];
 
     protected $casts = [
+        'id' => 'integer',
         'registration' => 'boolean',
         'readonly' => 'boolean',
         'deviceReadonly' => 'boolean',

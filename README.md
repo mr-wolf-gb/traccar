@@ -18,7 +18,8 @@ Laravel projects.
 - <a href="#installation">Installation</a>
 - <a href="#features-and-usage">Features and Usage</a>
     - <a href="#multi-users-and-servers">Multi-users and servers</a>
-    - <a href="#available-ressources">Available ressources</a>
+    - <a href="#authentication">Authentication</a>
+    - <a href="#available-resources">Available resources</a>
         - <a href="#server">Server</a>
         - <a href="#session">Session</a>
         - <a href="#user">User</a>
@@ -30,6 +31,14 @@ Laravel projects.
         - <a href="#event">Event</a>
         - <a href="#driver">Driver</a>
         - <a href="#report">Report</a>
+        - <a href="#command">Command</a>
+        - <a href="#order">Order</a>
+        - <a href="#permission">Permission</a>
+        - <a href="#share">Share</a>
+        - <a href="#statistic">Statistic</a>
+        - <a href="#calendar">Calendar</a>
+        - <a href="#computed-attribute">Computed Attribute</a>
+        - <a href="#maintenance">Maintenance</a>
 - <a href="#traccar-custom-server">Traccar Custom Server and Features</a>
 - <a href="#testing">Testing</a>
 - <a href="#changelog">Changelog</a>
@@ -41,6 +50,7 @@ Laravel projects.
 
 | Version | Php Version |
 |---------|-------------|
+| 1.1.0   | ^8.1        |
 | 1.0.0   | ^8.1        |
 
 ## Installation
@@ -57,7 +67,7 @@ You can publish the config and migration:
 php artisan vendor:publish --provider="MrWolfGb\Traccar\TraccarServiceProvider"
 ```
 
-Set traccar server information [.env file]:
+Set Traccar server information in your `.env` file:
 
 ```dotenv
 TRACCAR_BASE_URL="http://localhost:8082/"
@@ -65,7 +75,8 @@ TRACCAR_SOCKET_URL="ws://localhost:8082/api/socket"
 TRACCAR_USERNAME="admin@traccar.local"
 TRACCAR_PASSWORD="password"
 TRACCAR_TOKEN="RzBFAiEA84hXSL6uV6FQyBX0_Ds1a6NMcSC..."
-# token required only when using fetch session informations
+# auto uses TRACCAR_TOKEN as Bearer auth when it has a value, otherwise falls back to Basic auth
+TRACCAR_AUTH_METHOD="auto" # auto, token, basic
 ```
 
 ## ✨ Features and Usage
@@ -73,23 +84,38 @@ TRACCAR_TOKEN="RzBFAiEA84hXSL6uV6FQyBX0_Ds1a6NMcSC..."
 #### Multi-users and servers
 
 ```php
-// by default, it uses .env credentials else you can set it manually
-// Inject service as public variable in Controller
+// By default, the service uses .env credentials. You can also override them manually.
+// Inject service as a public variable in a controller.
 public function __construct(public TraccarService $traccarService)
 {
     $this->traccarService->setEmail("user1@traccar.local");
     $this->traccarService->setPassword("password");
     $this->traccarService->setBaseUrl("http://localhost:8082/");
-    $this->traccarService->setToken("ws://localhost:8082/api/socket");
+    $this->traccarService->setToken("RzBFAiEA84hXSL6uV6FQyBX0_Ds1a6NMcSC...");
+    $this->traccarService->setAuthMethod("auto"); // auto, token, basic
 }
-// or inject directly in specific method
+// Or inject directly in a controller method.
 public function index(TraccarService $traccarService)
 {
     //...
 }
 ```
 
-#### Available ressources
+#### Authentication
+
+The package supports Traccar Basic authentication and API token authentication. By default, `TRACCAR_AUTH_METHOD=auto` uses `TRACCAR_TOKEN` as a Bearer token when it has a value. If no token is configured, requests fall back to Basic authentication with `TRACCAR_USERNAME` and `TRACCAR_PASSWORD`.
+
+Use `TRACCAR_AUTH_METHOD=basic` when you want to force Basic authentication even if a token exists. Use `TRACCAR_AUTH_METHOD=token` when you want token authentication only.
+
+```php
+$traccarService->setToken('token-from-traccar');
+$traccarService->setAuthMethod('token');
+
+// Force Basic auth for every authorized request.
+$traccarService->setAuthMethod('basic');
+```
+
+#### Available resources
 
 - #### *Server*
 
@@ -99,10 +125,18 @@ Model : **[Server Model](src/Models/Server.php)**
 public function index(TraccarService $traccarService)
 {
     $serverRepo = $traccarService->serverRepository();
-    // Get server information
-    $srv = $serverRepo->fetchServerInformation();
-    // Update server information
+
+    $serverRepo->checkHealth();
+    $serverRepo->fetchTimezones();
+    $serverRepo->reverseGeocode(latitude: 36.8065, longitude: 10.1815);
+    $serverRepo->fetchCacheDiagnostics();
+    $serverRepo->triggerGarbageCollection();
+    $serverRepo->rebootServer();
+
+    $srv = $serverRepo->fetchServerInformation(); // returns Server model
     $serverRepo->updateServerInformation(server: $srv);
+
+    $serverRepo->uploadServerFile(path: 'example/file.txt', localFile: storage_path('app/file.txt'));
 }
 ```
 
@@ -114,11 +148,15 @@ Model : **[Session Model](src/Models/Session.php)**
 public function index(TraccarService $traccarService)
 {
     $sessionRepo = $traccarService->sessionRepository();
-    // Create new session 
-    $session = $sessionRepo->createNewSession();
-    // Get connected session [Require user Token in configuration]
-    $session = $sessionRepo->fetchSessionInformation();
-    // Close session
+
+    $session = $sessionRepo->createNewSession(); // POST /session with configured username and password
+    $session = $sessionRepo->fetchSessionInformation(); // GET /session?token=... using TRACCAR_TOKEN
+    $session = $sessionRepo->fetchSessionInformationWithToken('session-token');
+    $session = $sessionRepo->fetchSessionInformationWithCredentials(); // alias of createNewSession()
+    $token = $sessionRepo->generateSessionToken(expiration: now()->addDay()->toIso8601String());
+    $sessionRepo->revokeSessionToken(token: $token);
+    $sessionRepo->fetchOpenIdAuth();
+    $sessionRepo->openIdCallback(['code' => 'openid-code']);
     $sessionRepo->closeSession();
 }
 ```
@@ -131,28 +169,24 @@ Model : **[User Model](src/Models/User.php)**
 public function index(TraccarService $traccarService)
 {
     $userRepo = $traccarService->userRepository();
-    // Get list of users
+
     $list = $userRepo->fetchListUsers();
-    // Create new user
     $user = $userRepo->createUser(
         name: 'test', 
         email: 'test@test.local', 
         password: 'test'
     );
-    // Create new user with Model : MrWolfGb\Traccar\Models\User
     $user = $userRepo->createNewUser(new User([
         'name' => 'test',
         'email' => 'test@test.local',
         'password' => 'test',
     ]));
-    // Update user
+
     $user = $userRepo->updateUser(user: $user);
-    // Delete user : int|User $user
     $userRepo->deleteUser(user: $user);
-    // Assign user to device : int|User $user, int|Device $device
     $userRepo->assignUserDevice(user: 1, device: 1);
-    // Remove user from device : int|User $user, int|Device $device
     $userRepo->removeUserDevice(user: 1, device: 1);
+    $secret = $userRepo->generateTotpSecret();
 }
 ```
 
@@ -204,6 +238,8 @@ public function index(TraccarService $traccarService)
     $device = $deviceRepo->updateDevice(device: $device);
     // Delete device : int|Device $device
     $deviceRepo->deleteDevice(device: $device);
+    // Upload or update device image
+    $imageName = $deviceRepo->uploadDeviceImage(device: $device, path: storage_path('app/device.png'));
     // Update total distance and hours
     $deviceRepo->updateTotalDistanceAndHoursOfDevice(device: $device, totalDistance: 100, hours: 10);
     // Assign device to geofence : int|Device $device, int|Geofence $geofence
@@ -265,7 +301,7 @@ public function index(TraccarService $traccarService)
     // Create new notification with Model : MrWolfGb\Traccar\Models\Notification
     $notification = $notificationRepo->createNewNotification(new Notification([
         'type' => NotificationType::ALARM->value,
-        'notificator' => implode(',', [
+        'notificators' => implode(',', [
             NotificatorType::WEB->value, 
             NotificatorType::COMMAND->value
         ]),
@@ -279,9 +315,12 @@ public function index(TraccarService $traccarService)
     // Get notification types from Traccar server
     $list = $notificationRepo->fetchNotificationTypes();
     // Send test notification
-    $notificationRepo->sendTestNotification(
-        type: NotificationType::MEDIA->value, 
-        notificator: NotificatorType::WEB->value
+    $notificationRepo->sendTestNotification();
+    // Send custom notification through a notificator
+    $notificationRepo->sendCustomNotification(
+        notificator: NotificatorType::WEB->value,
+        payload: ['message' => 'Hello from Laravel'],
+        userId: [1, 2] // optional
     );
 }
 ```
@@ -306,6 +345,24 @@ public function index(TraccarService $traccarService)
         from: now()->subHours(1), 
         to: now()
     );
+    // Delete one position
+    $positionRepo->deletePosition(id: 1);
+    // Export positions
+    $kml = $positionRepo->exportPositionsKml([
+        'deviceId' => 1,
+        'from' => now()->subHours(1)->toIso8601String(),
+        'to' => now()->toIso8601String(),
+    ]);
+    $csv = $positionRepo->exportPositionsCsv([
+        'deviceId' => 1,
+        'from' => now()->subHours(1)->toIso8601String(),
+        'to' => now()->toIso8601String(),
+    ]);
+    $gpx = $positionRepo->exportPositionsGpx([
+        'deviceId' => 1,
+        'from' => now()->subHours(1)->toIso8601String(),
+        'to' => now()->toIso8601String(),
+    ]);
     // OsmAnd
     $positionRepo->OsmAnd(uniqueId: "1234-d1", temperature: "21.5", abc: "def");
 }
@@ -398,12 +455,156 @@ public function index(TraccarService $traccarService)
         deviceId: [1,2],
         //groupId: [1,2], // optional
     );
+    // Get geofences report
+    $list = $reportRepo->reportGeofences(
+        from: now()->subHours(value: 3),
+        to: now(),
+        deviceId: [1, 2],
+        //groupId: [1,2], // optional
+    );
+}
+```
+
+- #### *Command*
+
+These endpoints return `Command` and `CommandType` models, or collections of those models.
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $commandRepo = $traccarService->commandRepository();
+
+    $list = $commandRepo->fetchListCommands(all: true, deviceId: 1);
+    $types = $commandRepo->fetchCommandTypes(deviceId: 1);
+    $supported = $commandRepo->fetchSupportedCommands(deviceId: 1);
+    $command = $commandRepo->createCommand([
+        'deviceId' => 1,
+        'type' => 'custom',
+        'attributes' => ['data' => 'status'],
+    ]);
+    $command = $commandRepo->updateCommand(id: $command->id, command: $command);
+    $sent = $commandRepo->dispatchCommand(command: [
+        'deviceId' => 1,
+        'type' => 'custom',
+        'attributes' => ['data' => 'status'],
+    ]);
+    $commandRepo->deleteCommand(id: $command->id);
+}
+```
+
+- #### *Order*
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $orderRepo = $traccarService->orderRepository();
+
+    $list = $orderRepo->fetchListOrders(all: true, limit: 20);
+    $order = $orderRepo->createOrder(['description' => 'Delivery order']);
+    $order = $orderRepo->updateOrder(id: $order->id, order: $order);
+    $orderRepo->deleteOrder(id: $order->id);
+}
+```
+
+- #### *Permission*
+
+Use this repository when you need permission links that are not covered by convenience methods such as `assignUserDevice`.
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $permissionRepo = $traccarService->permissionRepository();
+
+    $links = $permissionRepo->fetchPermissions(['userId' => 1]);
+    $permissionRepo->linkPermission(['userId' => 1, 'deviceId' => 1]);
+    $permissionRepo->unlinkPermission(['userId' => 1, 'deviceId' => 1]);
+}
+```
+
+- #### *Share*
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $shareRepo = $traccarService->shareRepository();
+
+    $deviceToken = $shareRepo->shareDevice(
+        deviceId: 1,
+        expiration: now()->addDay()->toIso8601String()
+    );
+    $groupToken = $shareRepo->shareGroup(
+        groupId: 1,
+        expiration: now()->addDay()->toIso8601String()
+    );
+}
+```
+
+- #### *Statistic*
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $statistics = $traccarService->statisticRepository()->fetchServerStatistics(
+        from: now()->subDay()->toIso8601String(),
+        to: now()->toIso8601String()
+    );
+}
+```
+
+- #### *Calendar*
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $calendarRepo = $traccarService->calendarRepository();
+
+    $list = $calendarRepo->fetchListCalendars(all: true);
+    $calendar = $calendarRepo->createCalendar(['name' => 'Work days']);
+    $calendar = $calendarRepo->updateCalendar(id: $calendar->id, calendar: $calendar);
+    $calendarRepo->deleteCalendar(id: $calendar->id);
+}
+```
+
+- #### *Computed Attribute*
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $attributeRepo = $traccarService->attributeRepository();
+
+    $list = $attributeRepo->fetchListComputedAttributes(all: true, deviceId: 1);
+    $attribute = $attributeRepo->createComputedAttribute([
+        'description' => 'Ignition status',
+        'attribute' => 'ignition',
+        'expression' => 'io1',
+        'type' => 'boolean',
+    ]);
+    $attribute = $attributeRepo->updateComputedAttribute(id: $attribute->id, attribute: $attribute);
+    $attributeRepo->deleteComputedAttribute(id: $attribute->id);
+}
+```
+
+- #### *Maintenance*
+
+```php
+public function index(TraccarService $traccarService)
+{
+    $maintenanceRepo = $traccarService->maintenanceRepository();
+
+    $list = $maintenanceRepo->fetchListMaintenance(all: true, deviceId: 1);
+    $maintenance = $maintenanceRepo->createMaintenance([
+        'name' => 'Oil change',
+        'type' => 'totalDistance',
+        'period' => 10000,
+    ]);
+    $maintenance = $maintenanceRepo->updateMaintenance(id: $maintenance->id, maintenance: $maintenance);
+    $maintenanceRepo->deleteMaintenance(id: $maintenance->id);
 }
 ```
 
 ### Commands
 
-This command store devices in the local database using the published migration.
+This command stores devices in the local database using the published migration.
 
 ```bash
 php artisan traccar:sync
@@ -415,10 +616,10 @@ Or
 php artisan traccar:sync-devices
 ```
 
-### Listen Traccar websocket with php
+### Listen to Traccar websocket with PHP
 
-if you want to listen Traccar websocket with php you can check example in
-file : [WsListenCommand](src/Commands/WsListenCommand.php)
+If you want to listen to the Traccar websocket with PHP, check the example in
+[WsListenCommand](src/Commands/WsListenCommand.php).
 
 ## Traccar Custom Server
 

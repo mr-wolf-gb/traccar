@@ -16,6 +16,7 @@ return [
         'username' => env('TRACCAR_USERNAME'),
         'password' => env('TRACCAR_PASSWORD'),
         'token' => env('TRACCAR_TOKEN'),
+        'method' => env('TRACCAR_AUTH_METHOD', 'auto'), // auto, token, basic
     ],
     'database' => [
         'connection' => env('TRACCAR_DB_CONNECTION', 'mysql'),

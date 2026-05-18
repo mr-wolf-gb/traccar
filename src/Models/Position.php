@@ -27,4 +27,22 @@ class Position extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'id' => 'integer',
+        'deviceId' => 'integer',
+        'deviceTime' => 'datetime',
+        'fixTime' => 'datetime',
+        'serverTime' => 'datetime',
+        'valid' => 'boolean',
+        'latitude' => 'float',
+        'longitude' => 'float',
+        'altitude' => 'float',
+        'speed' => 'float',
+        'course' => 'float',
+        'accuracy' => 'float',
+        'network' => 'array',
+        'geofenceIds' => 'array',
+        'attribs' => 'array',
+    ];
+
 }

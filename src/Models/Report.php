@@ -27,4 +27,23 @@ class Report extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'deviceId' => 'integer',
+        'geofenceId' => 'integer',
+        'maxSpeed' => 'float',
+        'averageSpeed' => 'float',
+        'distance' => 'float',
+        'spentFuel' => 'float',
+        'engineHours' => 'integer',
+        'duration' => 'integer',
+        'startTime' => 'datetime',
+        'endTime' => 'datetime',
+        'startLat' => 'float',
+        'startLon' => 'float',
+        'endLat' => 'float',
+        'endLon' => 'float',
+        'lat' => 'float',
+        'lon' => 'float',
+    ];
+
 }

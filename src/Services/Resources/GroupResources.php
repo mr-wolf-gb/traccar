@@ -30,7 +30,7 @@ class GroupResources extends BaseResource
             $query["userId"] = $userId;
         }
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'groups',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -53,7 +53,7 @@ class GroupResources extends BaseResource
             throw new TraccarException("Name cannot be empty !");
         }
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'groups',
             payload: [
                 "name" => $name,
@@ -84,7 +84,7 @@ class GroupResources extends BaseResource
         $postData["attributes"] = empty($postData["attribs"]) ? null : $postData["attribs"];
         unset($postData["attribs"]);
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'groups',
             payload: $postData
         );
@@ -108,7 +108,7 @@ class GroupResources extends BaseResource
         $putData["attributes"] = empty($putData["attribs"]) ? null : $putData["attribs"];
         unset($putData["attribs"]);
         $response = $this->service->put(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'groups/' . $group->id,
             payload: $putData
         );
@@ -126,7 +126,7 @@ class GroupResources extends BaseResource
     public function deleteGroup(int|Group $group): bool
     {
         $response = $this->service->delete(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'groups/' . ($group instanceof Group ? $group->id : $group)
         );
         if (!$response->noContent()) {

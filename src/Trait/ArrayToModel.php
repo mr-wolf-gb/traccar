@@ -18,7 +18,7 @@ trait ArrayToModel
      * @param mixed $values
      * @return static
      */
-    protected static function createFromValueArray(mixed $values): static
+    public static function createFromValueArray(mixed $values): static
     {
         if (is_string($values)) $values = json_decode($values, true);
         return self::getModel($values);
@@ -49,7 +49,7 @@ trait ArrayToModel
      * @param mixed $values
      * @return Collection
      */
-    protected static function createFromValueList(mixed $values): Collection
+    public static function createFromValueList(mixed $values): Collection
     {
         $collection = collect();
         if (is_null($values)) return $collection;

@@ -23,11 +23,19 @@ use MrWolfGb\Traccar\Services\Resources\DriverResources;
 use MrWolfGb\Traccar\Services\Resources\EventResources;
 use MrWolfGb\Traccar\Services\Resources\GeofenceResources;
 use MrWolfGb\Traccar\Services\Resources\GroupResources;
+use MrWolfGb\Traccar\Services\Resources\AttributeResources;
+use MrWolfGb\Traccar\Services\Resources\CalendarResources;
+use MrWolfGb\Traccar\Services\Resources\CommandResources;
+use MrWolfGb\Traccar\Services\Resources\MaintenanceResources;
 use MrWolfGb\Traccar\Services\Resources\NotificationResources;
+use MrWolfGb\Traccar\Services\Resources\OrderResources;
+use MrWolfGb\Traccar\Services\Resources\PermissionResources;
 use MrWolfGb\Traccar\Services\Resources\PositionResources;
 use MrWolfGb\Traccar\Services\Resources\ReportResources;
 use MrWolfGb\Traccar\Services\Resources\ServerResources;
 use MrWolfGb\Traccar\Services\Resources\SessionResources;
+use MrWolfGb\Traccar\Services\Resources\ShareResources;
+use MrWolfGb\Traccar\Services\Resources\StatisticResources;
 use MrWolfGb\Traccar\Services\Resources\UserResources;
 
 class TraccarService
@@ -42,6 +50,7 @@ class TraccarService
      * @param string $password
      * @param string|null $token
      * @param array $headers
+     * @param string $authMethod
      * @throws TraccarException
      */
     public function __construct(
@@ -49,10 +58,11 @@ class TraccarService
         private string  $email,
         private string  $password,
         private ?string $token,
-        private array   $headers = array())
+        private array   $headers = array(),
+        private string  $authMethod = 'auto')
     {
         $this->cacheKey = Str::slug($email, '_') . '_traccar_auth';
-        if (!Cache::has($this->cacheKey) && !empty($this->baseUrl) && !empty($this->email) && !empty($this->password)) {
+        if ($this->shouldUseBasicAuth() && !Cache::has($this->cacheKey) && !empty($this->baseUrl) && !empty($this->email) && !empty($this->password)) {
             $this->sessionRepository()->createNewSession();
         }
     }
@@ -80,6 +90,24 @@ class TraccarService
     public function setToken(?string $token): void
     {
         $this->token = $token;
+    }
+
+    public function getAuthMethod(): string
+    {
+        return $this->authMethod;
+    }
+
+    public function setAuthMethod(string $authMethod): TraccarService
+    {
+        $this->authMethod = $authMethod;
+        return $this;
+    }
+
+    public function shouldUseBasicAuth(): bool
+    {
+        $authMethod = strtolower($this->authMethod);
+
+        return $authMethod === 'basic' || ($authMethod !== 'token' && empty($this->token));
     }
 
     /**
@@ -250,5 +278,45 @@ class TraccarService
     public function reportRepository(): ReportResources
     {
         return new ReportResources($this);
+    }
+
+    public function commandRepository(): CommandResources
+    {
+        return new CommandResources($this);
+    }
+
+    public function orderRepository(): OrderResources
+    {
+        return new OrderResources($this);
+    }
+
+    public function permissionRepository(): PermissionResources
+    {
+        return new PermissionResources($this);
+    }
+
+    public function shareRepository(): ShareResources
+    {
+        return new ShareResources($this);
+    }
+
+    public function statisticRepository(): StatisticResources
+    {
+        return new StatisticResources($this);
+    }
+
+    public function calendarRepository(): CalendarResources
+    {
+        return new CalendarResources($this);
+    }
+
+    public function attributeRepository(): AttributeResources
+    {
+        return new AttributeResources($this);
+    }
+
+    public function maintenanceRepository(): MaintenanceResources
+    {
+        return new MaintenanceResources($this);
     }
 }

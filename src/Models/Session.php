@@ -41,6 +41,7 @@ class Session extends Model
     use ArrayToModel;
 
     protected $fillable = [
+        'id',
         'name',
         'email',
         'phone',
@@ -65,14 +66,20 @@ class Session extends Model
     ];
 
     protected $casts = [
+        'id' => 'integer',
         'readonly' => 'boolean',
         'administrator' => 'boolean',
+        'latitude' => 'float',
+        'longitude' => 'float',
+        'zoom' => 'integer',
         'twelveHourFormat' => 'boolean',
         'disabled' => 'boolean',
         'deviceReadonly' => 'boolean',
         'limitCommands' => 'boolean',
         'fixedEmail' => 'boolean',
         'expirationTime' => 'datetime',
+        'deviceLimit' => 'integer',
+        'userLimit' => 'integer',
         'attribs' => 'array',
     ];
 

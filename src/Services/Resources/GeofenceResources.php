@@ -38,7 +38,7 @@ class GeofenceResources extends BaseResource
             $query["groupId"] = $groupId;
         }
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'geofences',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -64,7 +64,7 @@ class GeofenceResources extends BaseResource
             throw new TraccarException("Name cannot be empty !");
         }
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'geofences',
             payload: [
                 "name" => $name,
@@ -98,7 +98,7 @@ class GeofenceResources extends BaseResource
         $postData["attributes"] = empty($postData["attribs"]) ? null : $postData["attribs"];
         unset($postData["attribs"]);
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'geofences',
             payload: $postData
         );
@@ -119,7 +119,7 @@ class GeofenceResources extends BaseResource
         $putData["attributes"] = empty($putData["attribs"]) ? null : $putData["attribs"];
         unset($putData["attribs"]);
         $response = $this->service->put(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'geofences/' . $geofence->id,
             payload: $putData
         );
@@ -137,7 +137,7 @@ class GeofenceResources extends BaseResource
     public function deleteGeofence(int|Geofence $geofence): bool
     {
         $response = $this->service->delete(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'geofences/' . ($geofence instanceof Geofence ? $geofence->id : $geofence)
         );
         if (!$response->noContent()) {

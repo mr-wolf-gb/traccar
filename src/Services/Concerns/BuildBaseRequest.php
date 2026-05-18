@@ -23,7 +23,19 @@ trait BuildBaseRequest
     public function buildRequestWithAccessToken(): PendingRequest
     {
         if (empty($this->getToken())) throw new TraccarException("No access token provided.");
-        return $this->withBaseUrl()->withQueryParameters(["token" => $this->getToken()]);
+        return $this->withBaseUrl()->withToken($this->getToken());
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function buildAuthorizedRequest(): PendingRequest
+    {
+        if ($this->shouldUseBasicAuth()) {
+            return $this->buildRequestWithConfiguredAuth(forceBasicAuth: true);
+        }
+
+        return $this->buildRequestWithAccessToken();
     }
 
     public function withBaseUrl(bool $useAPI = true): PendingRequest
@@ -45,8 +57,12 @@ trait BuildBaseRequest
         return $this->withBaseUrl()->withCookies([$session["Name"] => $session["Value"]], $session["Domain"]);
     }
 
-    public function buildRequestWithBasicAuth(null|string $username = null, null|string $password = null): PendingRequest
+    public function buildRequestWithConfiguredAuth(null|string $username = null, null|string $password = null, bool $forceBasicAuth = false): PendingRequest
     {
+        if (!$forceBasicAuth && $username === null && $password === null && !$this->shouldUseBasicAuth()) {
+            return $this->buildRequestWithAccessToken();
+        }
+
         return $this->withBaseUrl()->withBasicAuth($username ?? $this->email, $password ?? $this->password);
     }
 }

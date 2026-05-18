@@ -14,6 +14,7 @@ use Illuminate\Support\Collection;
 use MrWolfGb\Traccar\Enums\NotificatorType;
 use MrWolfGb\Traccar\Exceptions\TraccarException;
 use MrWolfGb\Traccar\Models\Notification;
+use MrWolfGb\Traccar\Models\NotificationMessage;
 
 class NotificationResources extends BaseResource
 {
@@ -40,7 +41,7 @@ class NotificationResources extends BaseResource
             $query["groupId"] = $groupId;
         }
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'notifications',
             query: urldecode(http_build_query($query, '', '&'))
         );
@@ -74,7 +75,7 @@ class NotificationResources extends BaseResource
             }
         }
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'notifications',
             payload: [
                 "type" => $type,
@@ -113,7 +114,7 @@ class NotificationResources extends BaseResource
         $postData["attributes"] = empty($postData["attribs"]) ? null : $postData["attribs"];
         unset($postData["attribs"]);
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'notifications',
             payload: $postData
         );
@@ -134,7 +135,7 @@ class NotificationResources extends BaseResource
         $putData["attributes"] = empty($putData["attribs"]) ? null : $putData["attribs"];
         unset($putData["attribs"]);
         $response = $this->service->put(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'notifications/' . $notification->id,
             payload: $putData
         );
@@ -152,7 +153,7 @@ class NotificationResources extends BaseResource
     public function deleteNotification(int|Notification $notification): bool
     {
         $response = $this->service->delete(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'notifications/' . ($notification instanceof Notification ? $notification->id : $notification)
         );
         if (!$response->noContent()) {
@@ -168,7 +169,7 @@ class NotificationResources extends BaseResource
     public function fetchNotificationTypes(): array
     {
         $response = $this->service->get(
-            request: $this->service->buildRequestWithBasicAuth(),
+            request: $this->service->buildRequestWithConfiguredAuth(),
             url: 'notifications/types',
         );
         if (!$response->ok()) {
@@ -179,28 +180,37 @@ class NotificationResources extends BaseResource
     }
 
     /**
-     * @param string $type
-     * @param string $notificator
-     * @param bool $always
-     * @param int|null $commandId
      * @return void
      * @throws TraccarException
      */
-    public function sendTestNotification(string $type, string $notificator, bool $always = false, int $commandId = null): void
+    public function sendTestNotification(?string $type = null, ?string $notificator = null, bool $always = false, int $commandId = null): void
     {
         $response = $this->service->post(
-            request: $this->service->buildRequestWithBasicAuth(),
-            url: 'notifications/test/' . $notificator,
-            payload: [
-                "type" => $type,
-                "notificators" => $notificator,
-                "always" => $always,
-                "commandId" => $commandId,
-            ]
+            request: $this->service->buildRequestWithConfiguredAuth(),
+            url: 'notifications/test'
         );
         if (!$response->noContent()) {
             throw new TraccarException($response->body());
         }
+    }
+
+    /**
+     * @throws TraccarException
+     */
+    public function sendCustomNotification(string $notificator, array|NotificationMessage $payload, null|array|int $userId = null): bool
+    {
+        $query = [];
+        if ($userId !== null) {
+            $query['userId'] = is_array($userId) ? $this->prepareMultipleQuery('userId', $userId) : $userId;
+        }
+
+        $response = $this->service->post(
+            request: $this->service->buildAuthorizedRequest()->withQueryParameters($query),
+            url: 'notifications/send/' . $notificator,
+            payload: $payload instanceof NotificationMessage ? $payload->toArray() : $payload
+        );
+
+        return $this->ensureNoContent($response);
     }
 
 }
