@@ -39,7 +39,6 @@ Laravel projects.
         - <a href="#calendar">Calendar</a>
         - <a href="#computed-attribute">Computed Attribute</a>
         - <a href="#maintenance">Maintenance</a>
-- <a href="#traccar-custom-server">Traccar Custom Server and Features</a>
 - <a href="#testing">Testing</a>
 - <a href="#changelog">Changelog</a>
 - <a href="#contributing">Contributing</a>
@@ -50,7 +49,7 @@ Laravel projects.
 
 | Version | Php Version |
 |---------|-------------|
-| 1.2.0   | ^8.1        |
+| 1.1.1   | ^8.1        |
 | 1.1.0   | ^8.1        |
 | 1.0.0   | ^8.1        |
 
