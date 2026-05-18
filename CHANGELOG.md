@@ -2,6 +2,23 @@
 
 All notable changes to `traccar` will be documented in this file
 
+## 1.2.0 - 2026-05-18
+
+### Added
+
+- Added `phrity/websocket` support for the `traccar:listen` websocket command.
+- Added websocket cookie configuration for browser access through `TraccarSession` middleware.
+
+### Changed
+
+- `traccar:listen` now authenticates websocket connections with the full `JSESSIONID=value` cookie from `getCookies()`.
+- `TraccarSession` now sets the Traccar session cookie on the frontend response so browsers can automatically include it in websocket handshakes.
+- README websocket documentation now targets the current Traccar cookie and token-based websocket behavior instead of the old custom `?session=` flow.
+
+### Fixed
+
+- Replaced the removed `session/check-sid` session validation flow with `GET /session` using the cached session cookie.
+
 ## 1.1.0 - 2026-05-18
 
 ### Added

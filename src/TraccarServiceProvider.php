@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: WOLF
  * Name: TraccarServiceProvider.php
@@ -33,7 +34,7 @@ class TraccarServiceProvider extends ServiceProvider
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
         $this->app->singleton(TraccarSessionMiddleware::class, function (Application $app) {
-            return new TraccarSessionMiddleware(app(TraccarService::class));
+            return new TraccarSessionMiddleware(app(TraccarService::class), $app->make('config'));
         });
         /** @var Router $router */
         $router = $this->app->make('router');
@@ -41,7 +42,7 @@ class TraccarServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../config/config.php' => config_path('traccar.php'),
+                __DIR__.'/../config/config.php' => config_path('traccar.php'),
             ], 'config');
 
             // Publishing the views.
@@ -50,9 +51,9 @@ class TraccarServiceProvider extends ServiceProvider
             ], 'views');*/
 
             // Publishing assets.
-//            $this->publishes([
-//                __DIR__ . '/../resources/assets' => public_path('vendor/traccar'),
-//            ], 'assets');
+            //            $this->publishes([
+            //                __DIR__ . '/../resources/assets' => public_path('vendor/traccar'),
+            //            ], 'assets');
 
             // Publishing the translation files.
             /*$this->publishes([
@@ -62,19 +63,19 @@ class TraccarServiceProvider extends ServiceProvider
             // Registering package commands.
             $this->commands([
                 Commands\SyncDevicesCommand::class,
-                //Commands\WsListenCommand::class
+                Commands\WsListenCommand::class,
             ]);
 
-            AboutCommand::add('Traccar', fn() => [
+            AboutCommand::add('Traccar', fn () => [
                 'Version' => InstalledVersions::getPrettyVersion('mr-wolf-gb/traccar'),
-                'Base Url' => AboutCommand::format(config('traccar.base_url'), console: fn($value) => "<fg=yellow;options=bold>$value</>"), // @phpstan-ignore-line
-                'Sync Devices' => AboutCommand::format(config('traccar.devices.store_in_database'), console: fn($value) => $value ? '<fg=yellow;options=bold>ENABLED</>' : 'OFF'),
+                'Base Url' => AboutCommand::format(config('traccar.base_url'), console: fn ($value) => "<fg=yellow;options=bold>$value</>"), // @phpstan-ignore-line
+                'Sync Devices' => AboutCommand::format(config('traccar.devices.store_in_database'), console: fn ($value) => $value ? '<fg=yellow;options=bold>ENABLED</>' : 'OFF'),
             ]);
 
-            //$method = method_exists($this, 'publishesMigrations') ? 'publishesMigrations' : 'publishes';
+            // $method = method_exists($this, 'publishesMigrations') ? 'publishesMigrations' : 'publishes';
 
             $this->publishes([
-                __DIR__ . '/../database/migrations' => database_path('migrations'),
+                __DIR__.'/../database/migrations' => database_path('migrations'),
             ], 'migrations');
         }
     }
@@ -85,21 +86,20 @@ class TraccarServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'traccar');
+        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'traccar');
         // Register the main class to use with the facade
         $this->app->singleton(
             abstract: TraccarService::class,
-            concrete: fn() => new TraccarService(
+            concrete: fn () => new TraccarService(
                 baseUrl: config('traccar.base_url'), // @phpstan-ignore-line
                 email: config('traccar.auth.username'), // @phpstan-ignore-line
                 password: config('traccar.auth.password'), // @phpstan-ignore-line
                 token: config('traccar.auth.token'), // @phpstan-ignore-line
                 headers: [
-                    'Accept' => 'application/json'
+                    'Accept' => 'application/json',
                 ],
                 authMethod: config('traccar.auth.method', 'auto'), // @phpstan-ignore-line
             )
         );
     }
-
 }

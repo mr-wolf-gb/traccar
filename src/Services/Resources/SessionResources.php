@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: WOLF
  * Name: SessionResources.php
@@ -18,39 +19,54 @@ use Symfony\Component\HttpFoundation\Cookie;
 
 class SessionResources extends BaseResource
 {
+    /**
+     * @throws TraccarException
+     */
     public function getCookies(): Cookie
     {
-        $this->checkSessionID();
+        $this->ensureSessionCookieExists();
         $session = $this->getSessionCache();
+
         return Cookie::create(
-            name: $session["Name"],
-            value: $session["Value"],
-            domain: $session["Domain"],
+            name: $session['Name'],
+            value: $session['Value'],
+            domain: $session['Domain'],
         );
-    }
-
-
-    private function checkSessionID(): void
-    {
-        $session = $this->getSessionCache();
-        $response = $this->service->get(
-            request: $this->service->withBaseUrl(),
-            url: 'session/check-sid',
-            query: [
-                'sid' => explode('.', $session["Value"])[0]
-            ]
-        );
-        try {
-            if ($response->json("status") === false) {
-                Cache::forget($this->service->getCacheKey());
-                $this->createNewSession();
-            }
-        } catch (TraccarException $e) {
-        }
     }
 
     /**
-     * @return Session
+     * @throws TraccarException
+     */
+    private function ensureSessionCookieExists(): void
+    {
+        $session = $this->getSessionCache();
+
+        if (! $this->hasSessionCookie($session)) {
+            $this->createNewSession();
+
+            return;
+        }
+
+        $response = $this->service->get(
+            request: $this->service->withBaseUrl()->withCookies(
+                [$session['Name'] => $session['Value']],
+                $session['Domain']
+            ),
+            url: 'session'
+        );
+
+        if (! $response instanceof Response || ! $response->ok()) {
+            Cache::forget($this->service->getCacheKey());
+            $this->createNewSession();
+        }
+    }
+
+    private function hasSessionCookie(array $session): bool
+    {
+        return ! empty($session['Name']) && ! empty($session['Value']) && ! empty($session['Domain']);
+    }
+
+    /**
      * @throws TraccarException
      */
     public function createNewSession(): Session
@@ -59,7 +75,7 @@ class SessionResources extends BaseResource
             request: $this->service->withBaseUrl(),
             url: 'session',
         );
-        if (!$response instanceof Response || !$response->ok()) {
+        if (! $response instanceof Response || ! $response->ok()) {
             throw new TraccarException($response->toException());
         }
         $this->cacheSessionResponse($response);
@@ -68,7 +84,6 @@ class SessionResources extends BaseResource
     }
 
     /**
-     * @return Session
      * @throws TraccarException
      */
     public function fetchSessionInformation(?string $token = null): Session
@@ -77,14 +92,13 @@ class SessionResources extends BaseResource
     }
 
     /**
-     * @return Session
      * @throws TraccarException
      */
     public function fetchSessionInformationWithToken(?string $token = null): Session
     {
         $token ??= $this->service->getToken();
         if (empty($token)) {
-            throw new TraccarException("No session token provided.");
+            throw new TraccarException('No session token provided.');
         }
 
         $response = $this->service->get(
@@ -92,7 +106,7 @@ class SessionResources extends BaseResource
             url: 'session',
             query: ['token' => $token]
         );
-        if (!$response instanceof Response || !$response->ok()) {
+        if (! $response instanceof Response || ! $response->ok()) {
             throw new TraccarException($response instanceof Response ? $response->body() : 'Unexpected response.');
         }
         $this->cacheSessionResponse($response, $token);
@@ -103,7 +117,6 @@ class SessionResources extends BaseResource
     /**
      * Alias for the credential-based session endpoint, POST /session.
      *
-     * @return Session
      * @throws TraccarException
      */
     public function fetchSessionInformationWithCredentials(): Session
@@ -120,10 +133,11 @@ class SessionResources extends BaseResource
             request: $this->service->buildRequestWithCookies(),
             url: 'session'
         );
-        if (!$response->noContent()) {
+        if (! $response->noContent()) {
             throw new TraccarException($response->toException());
         }
         Cache::forget($this->service->getCacheKey());
+
         return true;
     }
 
@@ -135,9 +149,9 @@ class SessionResources extends BaseResource
         $response = $this->service->post(
             request: $this->service->buildAuthorizedRequest()->asForm(),
             url: 'session/token',
-            payload: array_filter(compact('expiration'), fn($value) => $value !== null)
+            payload: array_filter(compact('expiration'), fn ($value) => $value !== null)
         );
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             throw new TraccarException($response->toException());
         }
 
@@ -154,7 +168,7 @@ class SessionResources extends BaseResource
             url: 'session/token/revoke',
             payload: compact('token')
         );
-        if (!$response->noContent()) {
+        if (! $response->noContent()) {
             throw new TraccarException($response->toException());
         }
 
@@ -170,7 +184,7 @@ class SessionResources extends BaseResource
             request: $this->service->buildAuthorizedRequest(),
             url: 'session/openid/auth'
         );
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             throw new TraccarException($response->toException());
         }
 
@@ -187,7 +201,7 @@ class SessionResources extends BaseResource
             url: 'session/openid/callback',
             query: $this->query($query)
         );
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             throw new TraccarException($response->toException());
         }
 
@@ -200,7 +214,7 @@ class SessionResources extends BaseResource
 
         Cache::forever($this->service->getCacheKey(), [
             'data' => $response->json(),
-            'token' => $token ?? $response->json("token") ?? $this->service->getToken(),
+            'token' => $token ?? $response->json('token') ?? $this->service->getToken(),
             'session' => $sessionCookie?->toArray(),
         ]);
     }

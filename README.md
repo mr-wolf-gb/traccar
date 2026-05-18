@@ -50,6 +50,7 @@ Laravel projects.
 
 | Version | Php Version |
 |---------|-------------|
+| 1.2.0   | ^8.1        |
 | 1.1.0   | ^8.1        |
 | 1.0.0   | ^8.1        |
 
@@ -72,6 +73,11 @@ Set Traccar server information in your `.env` file:
 ```dotenv
 TRACCAR_BASE_URL="http://localhost:8082/"
 TRACCAR_SOCKET_URL="ws://localhost:8082/api/socket"
+TRACCAR_SOCKET_COOKIE_ENABLED=true
+TRACCAR_SOCKET_COOKIE_DOMAIN=
+TRACCAR_SOCKET_COOKIE_SAME_SITE="lax"
+TRACCAR_SOCKET_COOKIE_SECURE=false
+TRACCAR_SOCKET_COOKIE_HTTP_ONLY=true
 TRACCAR_USERNAME="admin@traccar.local"
 TRACCAR_PASSWORD="password"
 TRACCAR_TOKEN="RzBFAiEA84hXSL6uV6FQyBX0_Ds1a6NMcSC..."
@@ -618,41 +624,91 @@ php artisan traccar:sync-devices
 
 ### Listen to Traccar websocket with PHP
 
-If you want to listen to the Traccar websocket with PHP, check the example in
-[WsListenCommand](src/Commands/WsListenCommand.php).
+The package includes an Artisan command that connects to the Traccar websocket with a valid `JSESSIONID` cookie retrieved
+from `SessionResources::getCookies()`.
 
-## Traccar Custom Server
+```bash
+php artisan traccar:listen --log
+```
 
-- **[Repository link](https://github.com/mr-wolf-gb/traccar-custom)**
+You can override the websocket URL when needed:
 
-This version is a fork of the original [TRACCAR](https://github.com/traccar/traccar) repository aimed at adding some
-useful features like :
+```bash
+php artisan traccar:listen --ws=ws://127.0.0.1:8082/api/socket --log
+```
 
-1. **_`Websocket` can be accessed from external Hosts (App):_**
-2. **_`api/session/check-sid?sid=[SESSION_ID]` to check if the session is still active or not_**
+The command uses [`phrity/websocket`](https://phrity.sirn.se/websocket), the maintained package for the
+`sirn-se/websocket-php` websocket client.
 
-## Features for this version of Traccar
+### Browser websocket access
 
-#### Middleware
+Browsers cannot manually set the `Cookie` header on `new WebSocket(...)`. The cookie must already be stored by the
+browser, then the browser sends it automatically during the websocket handshake.
 
-`TraccarSession` is a middleware that adds the session ID of traccar user to the View.
+Use the `TraccarSession` middleware on the page that opens the websocket. It retrieves the current Traccar session cookie
+and adds it to the HTTP response as `Set-Cookie`.
 
 ```php
 // route web.php
 Route::get('/', [HomeController::class, 'index'])->middleware('TraccarSession');
 ```
 
+Then open the websocket without adding `?session=`:
+
 ```php
 // blade view
-const socket = new WebSocket("{{config('traccar.websocket_url')}}?session={{$traccarSessionId}}");
+const socket = new WebSocket("{{ config('traccar.websocket_url') }}");
 socket.onerror = (error) => {
     console.log('socket error: ', error)
 }
 socket.onmessage = function (event) {
-    var data = JSON.parse(event.data);
+    const data = JSON.parse(event.data);
     console.log('socket message : ', data)
 }
 ```
+
+This works when Laravel and the Traccar websocket are on the same browser-facing site.
+
+Example `.env` for plain HTTP:
+
+```dotenv
+TRACCAR_BASE_URL="http://127.0.0.1:8082/"
+TRACCAR_SOCKET_URL="ws://app.example.com/api/socket"
+TRACCAR_SOCKET_COOKIE_SECURE=false
+```
+
+Example `.env` for HTTPS:
+
+```dotenv
+TRACCAR_BASE_URL="http://127.0.0.1:8082/"
+TRACCAR_SOCKET_URL="wss://app.example.com/api/socket"
+TRACCAR_SOCKET_COOKIE_SECURE=true
+```
+
+#### External JavaScript app
+
+If your JavaScript page is hosted on another domain, use a Traccar session token in the websocket URL. This avoids the
+browser limitation that prevents JavaScript from setting the websocket `Cookie` header manually.
+
+Generate a token from Laravel:
+
+```php
+$token = app(\MrWolfGb\Traccar\Services\TraccarService::class)
+    ->sessionRepository()
+    ->generateSessionToken(now()->addHour()->toIso8601String());
+```
+
+Then pass that token to your external JavaScript app and connect with `?token=`:
+
+```js
+const traccarDomain = 'tracking.example.com';
+const token = 'RjBEAiBHAITAUA_iZnMr4iYJw5jmesXDbkWf8t7qoHezq';
+const socketUrl = `wss://${traccarDomain}:8082/api/socket?token=${encodeURIComponent(token)}`;
+const socket = new WebSocket(socketUrl);
+```
+
+Use `ws://` for plain HTTP Traccar servers and `wss://` for HTTPS. Prefer short-lived session tokens and avoid exposing
+your permanent API token in browser code.
 
 ### Testing
 
